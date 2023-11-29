@@ -4,8 +4,16 @@
 #include <raylib.h>
 #include <string.h>
 
+#define RAYGUI_IMPLEMENTATION
+#include <raygui.h>
+
 #define WIDTH 800
 #define HEIGHT 600
+#define FONTSIZE 32
+#define BACKGROUND_COLOUR CLITERAL(Color){ 0, 128, 255, 255 }
+#define PADDING 10
+#define TITLEHEIGHT 60
+#define CONTROLSHEIGHT 60
 
 #define INITIAL_QA_COUNT 40
 
@@ -14,6 +22,7 @@ typedef struct {
   size_t capacity;
   char **questions;
   char **answers;
+  size_t output_length;
 } QandA;
 
 QandA empty_qanda(void) {
@@ -45,6 +54,7 @@ void append_to_qanda(QandA *qanda, char *question, char *answer) {
 
   qanda->questions[qanda->length] = question;
   qanda->answers[qanda->length]   = answer;
+  qanda->output_length += strlen(question) + 5 + strlen(answer) + 5; // "Q: " + '\n' + '\0'
   qanda->length++;
 }
 
@@ -62,7 +72,7 @@ int parse_string_to_qanda(QandA *qanda, char *text) {
   while (strncmp("Q:", cursor, 2) !=0 ) cursor++;
     // cursor now points at "Q:".  Advance it by two places and then search for "A:"
 
-    while (1) {
+  while (1) {
     cursor += 2;
     while (*cursor==' ') cursor++;
     char *question = cursor;
@@ -74,7 +84,6 @@ int parse_string_to_qanda(QandA *qanda, char *text) {
     char *q = calloc(q_len, sizeof(char));
     memcpy(q, question, q_len);
     q[q_len-1] = '\0';
-    printf("Question: %s\n", q);
 
     cursor += 2;
     while (*cursor==' ') cursor++;
@@ -86,7 +95,6 @@ int parse_string_to_qanda(QandA *qanda, char *text) {
     char *a = calloc(a_len, sizeof(char));
     memcpy(a, answer, a_len);
     a[a_len-1] = '\0';
-    printf("Answer: %s\n", a);
 
     append_to_qanda(qanda, q, a);
 
@@ -95,6 +103,19 @@ int parse_string_to_qanda(QandA *qanda, char *text) {
 
   return 1;
 }
+
+void get_qanda_string(QandA qanda, char *str, size_t num_qs, bool inc_last_answer) {
+  strcpy(str, "\0");
+  for (size_t i=0; i<num_qs; i++) {
+    strcat(str, "Q: ");
+    strcat(str, *(qanda.questions + i));
+    strcat(str, "\n");
+    if (i==num_qs-1 && !inc_last_answer) continue;
+    strcat(str, "A: ");
+    strcat(str, *(qanda.answers + i));
+    strcat(str, "\n");
+  }
+} 
 
 int main(void) {
   const char* catechism_file = "pretend_catechism.txt";
@@ -107,17 +128,55 @@ int main(void) {
   QandA qanda = empty_qanda();
   parse_string_to_qanda(&qanda, file_contents);
 
-  // InitWindow(WIDTH, HEIGHT, "It's raining...");
-  // SetWindowState(FLAG_WINDOW_RESIZABLE);
-  // SetTargetFPS(60);
-  //
-  // while (!WindowShouldClose()) {
-  //
-  //   BeginDrawing();
-  //   ClearBackground(WHITE);
-  //   EndDrawing();
-  // }
+  char* string_to_print = calloc(qanda.output_length, sizeof(char));
 
+  InitWindow(WIDTH, HEIGHT, "It's raining...");
+  SetWindowState(FLAG_WINDOW_RESIZABLE);
+  SetTargetFPS(60);
+
+  Font font = LoadFontEx("fonts/NotoSans-Regular.ttf", FONTSIZE, NULL, 0);
+  GuiSetFont(font);
+
+  Rectangle text_box_bounds = {.x=PADDING, .y=PADDING+TITLEHEIGHT, .width=WIDTH-2*PADDING, .height=HEIGHT-2*PADDING-CONTROLSHEIGHT-PADDING-TITLEHEIGHT };
+  // Rectangle control_bounds  = {.x=PADDING, .y=HEIGHT-CONTROLSHEIGHT-PADDING, .width=WIDTH-2*PADDING, .height=CONTROLSHEIGHT };
+
+  GuiSetStyle(DEFAULT, TEXT_SIZE, FONTSIZE);
+  GuiSetStyle(DEFAULT, TEXT_LINE_SPACING, 24);
+  GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xEEEEEEFF);
+  GuiSetStyle(DEFAULT, TEXT_WRAP_MODE, TEXT_WRAP_WORD);   // WARNING: If wrap mode enabled, text editing is not supported
+  GuiSetStyle(DEFAULT, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_TOP);
+  GuiSetStyle(BUTTON, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_MIDDLE);
+  GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0x000000FF);
+
+  size_t reveal_q_num = 0;
+  while (!WindowShouldClose()) {
+    get_qanda_string(qanda, string_to_print, reveal_q_num, true);
+    Rectangle advance_btn_rect = {.x=PADDING, .y=HEIGHT-CONTROLSHEIGHT-PADDING, .width=150, .height=CONTROLSHEIGHT};
+    Rectangle decr_btn_rect    = {.x=PADDING*2+150, .y=HEIGHT-CONTROLSHEIGHT-PADDING, .width=150, .height=CONTROLSHEIGHT};
+    Rectangle reset_btn_rect   = {.x=HEIGHT-CONTROLSHEIGHT, .y=HEIGHT-CONTROLSHEIGHT-PADDING, .width=150, .height=CONTROLSHEIGHT};
+    Rectangle title_box_rect   = {.x=PADDING, .y=PADDING, .width=WIDTH-2*PADDING, .height=TITLEHEIGHT};
+
+    char *title = "Catechism of the Order of the Phoenix";
+
+    BeginDrawing();
+      ClearBackground(BACKGROUND_COLOUR);
+      GuiTextBox(title_box_rect, title, 1000, false);
+      GuiTextBox(text_box_bounds, string_to_print, 100000, false);
+      if (GuiButton(advance_btn_rect, "Next")) {
+        reveal_q_num++;
+        if (reveal_q_num>qanda.length) reveal_q_num = qanda.length;
+      }
+      if (GuiButton(decr_btn_rect, "Back")) {
+        if (reveal_q_num>0) reveal_q_num--;
+      }
+      if (GuiButton(reset_btn_rect, "Reset")) {
+        reveal_q_num = 0;
+      }
+    EndDrawing();
+  }
+
+  free(string_to_print);
+  free_qanda(&qanda);
   UnloadFileText(file_contents);
 
   return 0;
