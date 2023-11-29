@@ -1,6 +1,6 @@
 CC = clang
 CFLAGS = -Wall -Wpedantic -Wextra -ggdb -std=c18
-CINCLUDES = -I./includes/raylib/src -I.includes/raygui/src
+CINCLUDES = -I./includes/raylib/src -I./includes/raygui/src
 CLIBS = -L./includes/raylib/src -lm -lraylib
 
 SRC = src
