@@ -77,6 +77,10 @@ int parse_string_to_qanda(QandA *qanda, char *text) {
   while (strncmp("\n", cursor, 1) != 0) cursor++;
   len = cursor - title;
   char *t = calloc(len, sizeof(char));
+  if (t==NULL) {
+    fprintf(stderr, "Unable to allocate memory. Buy more RAM I guess?\n");
+    exit(1);
+  }
   memcpy(t, title, len);
 
   qanda->title = t;
@@ -94,6 +98,10 @@ int parse_string_to_qanda(QandA *qanda, char *text) {
 
     len = cursor-question;
     char *q = calloc(len, sizeof(char));
+    if (q==NULL) {
+      fprintf(stderr, "Unable to allocate memory. Buy more RAM I guess?\n");
+      exit(1);
+    }
     memcpy(q, question, len);
 
     cursor += 3;
@@ -104,7 +112,10 @@ int parse_string_to_qanda(QandA *qanda, char *text) {
     
     len = cursor - answer;
     char *a = calloc(len, sizeof(char));
-    while (answer[len]=='\n') len--; // Because lines can end with multiple newlines
+    if (a==NULL) {
+      fprintf(stderr, "Unable to allocate memory. Buy more RAM I guess?\n");
+      exit(1);
+    }
     while (answer[len-1]=='\n') len--; // Because lines can end with multiple newlines
     memcpy(a, answer, len);
 
@@ -141,6 +152,10 @@ int main(void) {
   parse_string_to_qanda(&qanda, file_contents);
 
   char* string_to_print = calloc(qanda.output_length, sizeof(char));
+  if (string_to_print==NULL) {
+    fprintf(stderr, "Unable to allocate memory. Buy more RAM I guess?\n");
+    exit(1);
+  }
 
   InitWindow(WIDTH, HEIGHT, "It's raining...");
   SetWindowState(FLAG_WINDOW_RESIZABLE);
