@@ -18,6 +18,7 @@
 #define INITIAL_QA_COUNT 40
 
 typedef struct {
+  char *title;
   size_t length;
   size_t capacity;
   char **questions;
@@ -54,7 +55,7 @@ void append_to_qanda(QandA *qanda, char *question, char *answer) {
 
   qanda->questions[qanda->length] = question;
   qanda->answers[qanda->length]   = answer;
-  qanda->output_length += strlen(question) + 5 + strlen(answer) + 5; // "Q: " + '\n' + '\0'
+  qanda->output_length += 3 + strlen(question) + 1 + 3 + strlen(answer) + 3; // "Q: " + '\n' + "A: " + '\n' + '\n' + '\0'
   qanda->length++;
 }
 
@@ -65,36 +66,46 @@ void free_qanda(QandA *qanda) {
   }
   free(qanda->questions);
   free(qanda->answers);
+  free(qanda->title);
 }
 
 int parse_string_to_qanda(QandA *qanda, char *text) {
   char *cursor = text;
-  while (strncmp("Q:", cursor, 2) !=0 ) cursor++;
+  char *title = text;
+  size_t len = 0;
+
+  while (strncmp("\n", cursor, 1) != 0) cursor++;
+  len = cursor - title;
+  char *t = calloc(len, sizeof(char));
+  memcpy(t, title, len);
+
+  qanda->title = t;
+
+  while (strncmp("\nQ:", cursor, 3) !=0 ) cursor++;
     // cursor now points at "Q:".  Advance it by two places and then search for "A:"
 
   while (1) {
-    cursor += 2;
+    cursor += 3;
     while (*cursor==' ') cursor++;
     char *question = cursor;
 
-    while (strncmp("A:", cursor, 2) !=0 ) cursor++;
+    while (strncmp("\nA:", cursor, 3) !=0 ) cursor++;
     // cursor now points at the "A:" following the question
 
-    size_t q_len = cursor-question;
-    char *q = calloc(q_len, sizeof(char));
-    memcpy(q, question, q_len);
-    q[q_len-1] = '\0';
+    len = cursor-question;
+    char *q = calloc(len, sizeof(char));
+    memcpy(q, question, len);
 
-    cursor += 2;
+    cursor += 3;
     while (*cursor==' ') cursor++;
     char *answer = cursor;
-    while (*cursor != '\0' && strncmp("Q:", cursor, 2) !=0 ) cursor++;
+    while (*cursor != '\0' && strncmp("\nQ:", cursor, 3) !=0 ) cursor++;
     // cursor now points at the "Q:" following the answer or the null terminator
     
-    size_t a_len = cursor - answer;
-    char *a = calloc(a_len, sizeof(char));
-    memcpy(a, answer, a_len);
-    a[a_len-1] = '\0';
+    len = cursor - answer;
+    char *a = calloc(len, sizeof(char));
+    while (answer[len]=='\n') len--; // Because lines can end with multiple newlines
+    memcpy(a, answer, len);
 
     append_to_qanda(qanda, q, a);
 
@@ -156,7 +167,7 @@ int main(void) {
     Rectangle reset_btn_rect   = {.x=HEIGHT-CONTROLSHEIGHT, .y=HEIGHT-CONTROLSHEIGHT-PADDING, .width=150, .height=CONTROLSHEIGHT};
     Rectangle title_box_rect   = {.x=PADDING, .y=PADDING, .width=WIDTH-2*PADDING, .height=TITLEHEIGHT};
 
-    char *title = "Catechism of the Order of the Phoenix";
+    char *title = qanda.title;
 
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
