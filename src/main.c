@@ -105,6 +105,7 @@ int parse_string_to_qanda(QandA *qanda, char *text) {
     len = cursor - answer;
     char *a = calloc(len, sizeof(char));
     while (answer[len]=='\n') len--; // Because lines can end with multiple newlines
+    while (answer[len-1]=='\n') len--; // Because lines can end with multiple newlines
     memcpy(a, answer, len);
 
     append_to_qanda(qanda, q, a);
