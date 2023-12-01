@@ -42,8 +42,8 @@ QandA empty_qanda(void) {
 
 void expand_qanda(QandA *qanda) {
   qanda->capacity *= 2;
-  qanda->questions = realloc(qanda->questions, qanda->capacity);
-  qanda->answers   = realloc(qanda->answers, qanda->capacity);
+  qanda->questions = realloc(qanda->questions, qanda->capacity*sizeof(char*));
+  qanda->answers   = realloc(qanda->answers, qanda->capacity*sizeof(char*));
   if (qanda->questions==NULL || qanda->answers==NULL) {
     fprintf(stderr, "Unable to allocate memory. Buy more RAM I guess?\n");
     exit(1);
@@ -141,7 +141,7 @@ void get_qanda_string(QandA qanda, char *str, size_t num_qs, bool inc_last_answe
 } 
 
 int main(void) {
-  const char* catechism_file = "pretend_catechism.txt";
+  const char* catechism_file = "./catholic_catechism.txt";
   char *file_contents = LoadFileText(catechism_file);
   if (strlen(file_contents)<7) {
     fprintf(stderr, "File %s does not use the correct format\n", catechism_file);
