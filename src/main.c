@@ -7,14 +7,6 @@
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
 
-#define WIDTH 800
-#define HEIGHT 600
-#define FONTSIZE 32
-#define BACKGROUND_COLOUR CLITERAL(Color){ 0, 128, 255, 255 }
-#define PADDING 10
-#define TITLEHEIGHT 60
-#define CONTROLSHEIGHT 60
-
 #define INITIAL_QA_COUNT 40
 
 typedef struct {
@@ -140,6 +132,17 @@ void get_qanda_string(QandA qanda, char *str, size_t num_qs, bool inc_last_answe
   }
 } 
 
+#define WIDTH 800
+#define HEIGHT 600
+#define FONTSIZE 24
+#define BACKGROUND_COLOUR CLITERAL(Color){ 0x10, 0x10, 0x20, 0xFF }
+#define PADDING 10
+#define TITLEHEIGHT (FONTSIZE+10)
+#define CONTROLSHEIGHT (FONTSIZE+10)
+#define BTNPADDING 2
+#define BTNWIDTH 125
+#define BTNHEIGHT (CONTROLSHEIGHT-2*BTNPADDING)
+
 int main(void) {
   const char* catechism_file = "./catholic_catechism.txt";
   char *file_contents = LoadFileText(catechism_file);
@@ -157,38 +160,61 @@ int main(void) {
     exit(1);
   }
 
-  InitWindow(WIDTH, HEIGHT, "It's raining...");
+  int window_width = WIDTH;
+  int window_height = HEIGHT;
+  InitWindow(window_width, window_height, "It's raining...");
   SetWindowState(FLAG_WINDOW_RESIZABLE);
   SetTargetFPS(60);
 
-  Font font = LoadFontEx("fonts/NotoSans-Regular.ttf", FONTSIZE, NULL, 0);
+  Font font = LoadFontEx("fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, NULL, 0);
   GuiSetFont(font);
-
-  Rectangle text_box_bounds = {.x=PADDING, .y=PADDING+TITLEHEIGHT, .width=WIDTH-2*PADDING, .height=HEIGHT-2*PADDING-CONTROLSHEIGHT-PADDING-TITLEHEIGHT };
-  // Rectangle control_bounds  = {.x=PADDING, .y=HEIGHT-CONTROLSHEIGHT-PADDING, .width=WIDTH-2*PADDING, .height=CONTROLSHEIGHT };
 
   GuiSetStyle(DEFAULT, TEXT_SIZE, FONTSIZE);
   GuiSetStyle(DEFAULT, TEXT_LINE_SPACING, 24);
   GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xEEEEEEFF);
-  GuiSetStyle(DEFAULT, TEXT_WRAP_MODE, TEXT_WRAP_WORD);   // WARNING: If wrap mode enabled, text editing is not supported
+  GuiSetStyle(DEFAULT, TEXT_WRAP_MODE, TEXT_WRAP_WORD); 
   GuiSetStyle(DEFAULT, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_TOP);
   GuiSetStyle(BUTTON, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_MIDDLE);
   GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0x000000FF);
 
+  int usable_width = window_width - 2*PADDING;
+  int controls_y = window_height - CONTROLSHEIGHT - PADDING;
+  Rectangle title_box        = {.x=PADDING, .y=PADDING, .width=usable_width, .height=TITLEHEIGHT};
+  Rectangle controls_box     = {.x=PADDING, .y=controls_y, .width=usable_width, .height=CONTROLSHEIGHT};
+  Rectangle text_box         = {.x=PADDING, .y=PADDING + TITLEHEIGHT + PADDING, .width=window_width-2*PADDING, .height=controls_y - 2*PADDING - title_box.height };
+  Rectangle advance_btn_rect = {.x=PADDING, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
+  Rectangle decr_btn_rect    = {.x=PADDING*2+BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
+  Rectangle reset_btn_rect   = {.x=window_width-PADDING-BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
+
+  int min_allowed_window_width  = 4*PADDING + 3*BTNWIDTH;
+  int min_allowed_window_height = 4*PADDING + TITLEHEIGHT + 300 + CONTROLSHEIGHT;
+  SetWindowMinSize(min_allowed_window_width, min_allowed_window_height);
+
   size_t reveal_q_num = 0;
   while (!WindowShouldClose()) {
-    get_qanda_string(qanda, string_to_print, reveal_q_num, true);
-    Rectangle advance_btn_rect = {.x=PADDING, .y=HEIGHT-CONTROLSHEIGHT-PADDING, .width=150, .height=CONTROLSHEIGHT};
-    Rectangle decr_btn_rect    = {.x=PADDING*2+150, .y=HEIGHT-CONTROLSHEIGHT-PADDING, .width=150, .height=CONTROLSHEIGHT};
-    Rectangle reset_btn_rect   = {.x=HEIGHT-CONTROLSHEIGHT, .y=HEIGHT-CONTROLSHEIGHT-PADDING, .width=150, .height=CONTROLSHEIGHT};
-    Rectangle title_box_rect   = {.x=PADDING, .y=PADDING, .width=WIDTH-2*PADDING, .height=TITLEHEIGHT};
+    window_width = GetScreenWidth();
+    window_height = GetScreenHeight();
 
-    char *title = qanda.title;
+    usable_width = window_width - 2*PADDING;
+    controls_y = window_height - CONTROLSHEIGHT - PADDING;
+    title_box.width = usable_width;
+    controls_box.width = usable_width;
+    controls_box.y = controls_y;
+    text_box.width = window_width - 2*PADDING;
+    text_box.height = controls_y - 3*PADDING - title_box.height;
+    advance_btn_rect.y = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
+    decr_btn_rect.y    = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
+    reset_btn_rect.y   = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
+    reset_btn_rect.x   = window_width-PADDING-BTNWIDTH;
+
+    get_qanda_string(qanda, string_to_print, reveal_q_num, true);
 
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
-      GuiTextBox(title_box_rect, title, 1000, false);
-      GuiTextBox(text_box_bounds, string_to_print, 100000, false);
+
+      GuiTextBox(title_box, qanda.title, TEXT_SIZE, false);
+      DrawRectangleRec(text_box, BLUE);
+
       if (GuiButton(advance_btn_rect, "Next")) {
         reveal_q_num++;
         if (reveal_q_num>qanda.length) reveal_q_num = qanda.length;
