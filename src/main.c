@@ -128,7 +128,7 @@ void get_qanda_string(QandA qanda, char *str, size_t num_qs, bool inc_last_answe
     if (i==num_qs-1 && !inc_last_answer) continue;
     strcat(str, "A: ");
     strcat(str, *(qanda.answers + i));
-    strcat(str, "\n");
+    strcat(str, "\n\n");
   }
 } 
 
@@ -169,14 +169,6 @@ int main(void) {
   Font font = LoadFontEx("fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, NULL, 0);
   GuiSetFont(font);
 
-  GuiSetStyle(DEFAULT, TEXT_SIZE, FONTSIZE);
-  GuiSetStyle(DEFAULT, TEXT_LINE_SPACING, 24);
-  GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xEEEEEEFF);
-  GuiSetStyle(DEFAULT, TEXT_WRAP_MODE, TEXT_WRAP_WORD); 
-  GuiSetStyle(DEFAULT, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_TOP);
-  GuiSetStyle(BUTTON, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_MIDDLE);
-  GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0x000000FF);
-
   int usable_width = window_width - 2*PADDING;
   int controls_y = window_height - CONTROLSHEIGHT - PADDING;
   Rectangle title_box        = {.x=PADDING, .y=PADDING, .width=usable_width, .height=TITLEHEIGHT};
@@ -189,6 +181,14 @@ int main(void) {
   int min_allowed_window_width  = 4*PADDING + 3*BTNWIDTH;
   int min_allowed_window_height = 4*PADDING + TITLEHEIGHT + 300 + CONTROLSHEIGHT;
   SetWindowMinSize(min_allowed_window_width, min_allowed_window_height);
+
+  GuiSetStyle(DEFAULT, TEXT_SIZE, FONTSIZE);
+  GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xEEEEEEFF);
+  GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0x000000FF);
+  GuiSetStyle(DEFAULT, TEXT_LINE_SPACING, 24);
+  GuiSetStyle(DEFAULT, TEXT_WRAP_MODE, TEXT_WRAP_WORD); 
+  // GuiSetStyle(DEFAULT, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_TOP);
+  // GuiSetStyle(BUTTON, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_MIDDLE);
 
   size_t reveal_q_num = 0;
   while (!WindowShouldClose()) {
@@ -207,24 +207,37 @@ int main(void) {
     reset_btn_rect.y   = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
     reset_btn_rect.x   = window_width-PADDING-BTNWIDTH;
 
-    get_qanda_string(qanda, string_to_print, reveal_q_num, true);
+    if (GuiButton(advance_btn_rect, "Next")) {
+      reveal_q_num++;
+      if (reveal_q_num>qanda.length) reveal_q_num = qanda.length;
+      get_qanda_string(qanda, string_to_print, reveal_q_num, true);
+
+      size_t line_count = 0;
+      size_t char_count = 0;
+      for (size_t i=0; i<strlen(string_to_print); i++) {
+        if (string_to_print[i] == '\n') {
+          line_count += 1 + char_count / (window_width / 10);
+          char_count = 0;
+        }
+        char_count++;
+      }
+      TraceLog(LOG_INFO, "line_count = %zu", line_count);
+    }
+    if (GuiButton(decr_btn_rect, "Back")) {
+      if (reveal_q_num>0) reveal_q_num--;
+    }
+    if (GuiButton(reset_btn_rect, "Reset")) {
+      reveal_q_num = 0;
+    }
 
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
 
       GuiTextBox(title_box, qanda.title, TEXT_SIZE, false);
-      DrawRectangleRec(text_box, BLUE);
 
-      if (GuiButton(advance_btn_rect, "Next")) {
-        reveal_q_num++;
-        if (reveal_q_num>qanda.length) reveal_q_num = qanda.length;
-      }
-      if (GuiButton(decr_btn_rect, "Back")) {
-        if (reveal_q_num>0) reveal_q_num--;
-      }
-      if (GuiButton(reset_btn_rect, "Reset")) {
-        reveal_q_num = 0;
-      }
+      // DrawRectangleRec(GetTextBounds(TEXTBOX, text_box), RED);
+      GuiTextBox(text_box, string_to_print, 100000, false);
+
     EndDrawing();
   }
 
