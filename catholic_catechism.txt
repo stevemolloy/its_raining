@@ -3,8 +3,8 @@ Q: What is the Bible?
 A: The Bible is the collection of books that relate God’s revelation to the human race. It is the inspired word of God written by men and comprises the Old Testament and the New Testament.
 Q: Where did we get the Bible?
 A: We have the Bible by the authority of the early councils of the Catholic Church which decided which writings were truly inspired by God. Therefore the Bible may rightly be said to be a Catholic book.
-Q: When there is dispute over what the Bible means to teach us about some matter of faith or morals, how do we know the right meaning?
-A: Only the teaching authority of the Catholic Church can know what is true in faith and morals because Christ promised that the Holy Spirit would reveal all truth to the Church.
+Q: When there is dispute over what the Bible means to teach us about
+A: some matter of faith or morals, how do we know the right meaning? Only the teaching authority of the Catholic Church can know what is true in faith and morals because Christ promised that the Holy Spirit would reveal all truth to the Church.
 Q: What is the teaching authority of the Church called?
 A: The teaching authority of the Catholic Church is called magisterium.
 Q: What is Sacred Tradition?
@@ -12,9 +12,7 @@ A: Sacred Tradition is the oral, unwritten message that Jesus gave the Apostles.
 Q: In what degree must we accept the Bible? In what degree Tradition?
 A: One must accept the Bible and Tradition completely and equally because both are revealed by God.
 Q: What is the Blessed Trinity?
-A: The Blessed Trinity means that in the one God there are three distinct and equal Persons: the Father, the Son, and the Holy Spirit.
-Q: What do we mean by the equality and distinction of the divine Persons?
-A: The three divine Persons are perfectly equal to one another because all are the one and infinitely perfect God. The three divine Persons are really distinct from one another. They are not three names for the same Person, nor are the three Persons blended into one another. This means: The Father is not the Son. The Son is not the Holy Spirit. The Father is not the Holy Spirit.
+A: The Blessed Trinity means that in the one God there are three distinct and equal Persons: the Father, the Son, and the Holy Spirit. 8 What do we mean by the equality and distinction of the divine Persons? The three divine Persons are perfectly equal to one another because all are the one and infinitely perfect God. The three divine Persons are really distinct from one another. They are not three names for the same Person, nor are the three Persons blended into one another. This means The Father is not the Son. The Son is not the Holy Spirit. The Father is not the Holy Spirit.
 Q: What are Angels?
 A: Angels are pure spirits, without bodies, having intelligence and free will.
 Q: What are good angels; what are bad angels?
@@ -63,10 +61,10 @@ Q: What are the three theological virtues? Explain each.
 A: The three theological virtues are, Faith, Hope and Charity. Faith is the virtue by which we firmly believe all the truths God has revealed, on the word of God revealing them, who can neither deceive nor be deceived. Hope is the virtue by which we firmly trust that God, who is all- powerful and faithful to His promises, will in His mercy give us eternal happiness and the means to obtain it. Charity is the virtue by which we love God above all things for His own sake, and our neighbor as ourselves for the love of God.
 Q: What are the gifts of the Holy Spirit?
 A: There are seven gifts of the Holy Spirit, they are: wisdom, understanding, counsel, fortitude, knowledge, piety, and fear of the Lord.
-Q: What is moral virtue? What are the four cardinal (or main) virtues? Give examples of other moral virtues.
-A: Moral virtues are habits that help us to lead good lives by treating persons and things in the right way, that is, according to the will of God. The four cardinal virtues are prudence, justice, fortitude and temperance. Other examples of the moral virtues are honesty, courage, self-control, and purity.
-Q: What is the Church? Who founded it? How many true churches are there?
-A: What is the relationship between other churches and the true Church? The Church is the congregation of all baptized persons united in the same true faith, the same sacrifice, and the same sacraments, under the authority of the Pope and the bishops in union with him. The Church is the Mystical Body of Christ. Jesus Christ founded the Church. There is only one true Church, the Catholic Church. Other churches have a greater or lesser participation in the fullness of truth and grace that is found only in the Catholic Church.
+Q: What is moral virtue? What are the four cardinal (or main)
+A: virtues? Give examples of other moral virtues. Moral virtues are habits that help us to lead good lives by treating persons and things in the right way, that is, according to the will of God. The four cardinal virtues are prudence, justice, fortitude and temperance. Other examples of the moral virtues are honesty, courage, self-control, and purity.
+Q: What is the Church? Who founded it? How many true churches are there? What is the relationship between other churches and the true Church?
+A: The Church is the congregation of all baptized persons united in the same true faith, the same sacrifice, and the same sacraments, under the authority of the Pope and the bishops in union with him. The Church is the Mystical Body of Christ. Jesus Christ founded the Church. There is only one true Church, the Catholic Church. Other churches have a greater or lesser participation in the fullness of truth and grace that is found only in the Catholic Church.
 Q: Who is St. Peter? Who are his successors?
 A: St. Peter is the Apostle chosen by Christ to be the head, or first Pope, of the Church He founded. The Popes who have been chosen over the centuries succeed St. Peter. They are Christ’s representatives on earth as the lawful successors of St. Peter and visible heads of the Church.
 Q: Who are the apostles? Who are their successors?
@@ -88,19 +86,33 @@ A: A Priest is a mediator between God and man. Having received Holy Orders a pri
 Q: What is the communion of saints and what is the relationship between them?
 A: The communion of saints is the sharing of grace among all members of Christ’s Church, whether they are on earth, in purgatory, or in heaven. The relationship between them is that members of the Church are able to help each other through prayer in the communicating of spiritual benefits.
 Q: What is the resurrection of the body?
-A: The resurrection of the body is the rising of the human body united with the soul on the last day of time. It will bring the body to a state of perfection and glory.
+A: The resurrection of the body is the rising of the human body united
+with the soul on the last day of time. It will bring the body to a state of
+perfection and glory.
 Q: What is the Assumption?
-A: The Assumption is the taking up into heaven of the body and soul of the Blessed Virgin Mary.
+A: The Assumption is the taking up into heaven of the body and soul of
+the Blessed Virgin Mary.
 Q: How many judgments will God give us?
-A: There are two judgments. The first is called the particular judgment which takes place after one’s death. The second is called the general judgment and will take place at the end of the world with men and women from all time.
-Q: What is purgatory? How do people get there? How do they get out of there?
-A: Purgatory is a place of temporary punishment for souls that die in the state of grace but who must be purified of venial sin or of any temporary punishment still due to their sins before they can enter heaven.
+A: There are two judgments. The first is called the particular judgment
+which takes place after one’s death. The second is called the general
+judgment and will take place at the end of the world with men and
+women from all time.
+Q: What is purgatory? How do people get there? How do they get out
+A: of there?
+Purgatory is a place of temporary punishment for souls that die in the
+state of grace but who must be purified of venial sin or of any
+temporary punishment still due to their sins before they can enter
+heaven.
 Q: Will people in hell ever get out?
 A: No, the punishment of hell is eternal.
 Q: What is necessary for one to get to heaven?
-A: One must die in the state of grace, and be completely free of all punishment due to sin.
+A: One must die in the state of grace, and be completely free of all
+punishment due to sin.
 Q: What are the two commandments of Jesus?
-A: The two commandments of God are: You shall love the Lord your God with your whole heart, and with your whole soul, and with your whole mind, and with your whole strength; and, You shall love your neighbor as yourself.
+A: The two commandments of God are: You shall love the Lord your
+God with your whole heart, and with your whole soul, and with your
+whole mind, and with your whole strength; and, You shall love your
+neighbor as yourself.
 Q: What are the ten commandments? (by number and in order)
 A: The Commandments of God are:
 Q: I am the Lord your God; you shall not have strange gods before Me.
@@ -114,23 +126,51 @@ A: Q: You shall not bear false witness against your neighbor.
 Q: You shall not covet your neighbor’s wife.
 A: Q: You shall not covet your neighbor’s goods.
 Q: What is sacrilege? What kind of sin is it? Give examples of it.
-A: A sacrilege is the irreverent treatment, or mistreatment, of sacred persons, places, or things; it is also the reception of any of the sacraments unworthily. It is a mortal sin. Examples of sacrilege are knowingly receiving Holy Communion in mortal sin; or knowingly not confessing all of one’s mortal sins in confession.
+A: A sacrilege is the irreverent treatment, or mistreatment, of sacred
+persons, places, or things; it is also the reception of any of the
+sacraments unworthily. It is a mortal sin.
+Examples of sacrilege are knowingly receiving Holy Communion in
+mortal sin; or knowingly not confessing all of one’s mortal sins in
+confession.
 Q: What is a relic? Are sacred images permitted to be venerated?
-A: A relic is the body, or part of the body, of a saint. It is also anything, such as clothing, associated with the saint which the Church honors because of the sanctity of the person while on earth. Sacred images may be venerated. It is a good practice to do this.
-Q: What kind of sin is it to miss Mass on Sunday (or Saturday evening) through one’s own fault?
-A: It is a mortal sin against the third commandment to miss Mass on the days when attendance is obligatory.
+A: A relic is the body, or part of the body, of a saint. It is also anything,
+such as clothing, associated with the saint which the Church honors
+because of the sanctity of the person while on earth.
+Sacred images may be venerated. It is a good practice to do this.
+Q: What kind of sin is it to miss Mass on Sunday (or Saturday
+A: evening) through one’s own fault?
+It is a mortal sin against the third commandment to miss Mass on the
+days when attendance is obligatory.
 Q: What are some spiritual duties of parents towards their children?
-A: Spiritual duties of parents towards their children are to teach the Catholic faith and good morals, and to protect them from spiritual harm.
+A: Spiritual duties of parents towards their children are to teach the
+Catholic faith and good morals, and to protect them from spiritual
+harm.
 Q: Discuss abortion (and its penalties); illegal drugs; alcoholic drink.
-A: Abortion is a very grave sin and excommunicates one from the Church. The use of illegal drugs is always sinful. Alcoholic drink is sinful only when consumed to excess or when one is forbidden to take it.
-Q: Discuss purity and sins opposed to it (e.g. adultery, fornication; impurity with one’s own body; pornography; immoral music or movies, contraception, immodesty).
-A: Sins against purity that are fully willed (must understand this) are always mortal sins.
-Q: Discuss sins of stealing, including immoral business practices, cheating in buying and selling and shopping and income tax.
-A: These sins are mortal if the amount stolen or its value equals or exceeds what is about the worth of a daily wage.
+A: Abortion is a very grave sin and excommunicates one from the
+Church. The use of illegal drugs is always sinful. Alcoholic drink is
+sinful only when consumed to excess or when one is forbidden to take
+it.
+Q: Discuss purity and sins opposed to it (e.g. adultery, fornication;
+A: impurity with one’s own body; pornography; immoral music or
+movies, contraception, immodesty).
+Sins against purity that are fully willed (must understand this) are
+always mortal sins.
+Q: Discuss sins of stealing, including immoral business practices,
+A: cheating in buying and selling and shopping and income tax.
+These sins are mortal if the amount stolen or its value equals or
+exceeds what is about the worth of a daily wage.
 Q: What is restitution? Is it necessary for forgiveness of sins?
-A: Restitution is the obligation to pay back whatever is stolen or damaged. It is necessary to have at least the intention of restitution for one to be forgiven.
+A: Restitution is the obligation to pay back whatever is stolen or
+damaged. It is necessary to have at least the intention of restitution for
+one to be forgiven.
 Q: Discuss perjury; slander; detraction.
-A: Perjury means lying while under an oath to tell the truth. It is always a mortal sin. Slander means telling a lie about one’s character. Detraction means telling a truth about another’s moral failings or weaknesses. Slander and detraction may be mortal sins depending on the amount of damage done to one’s reputation.
+A: Perjury means lying while under an oath to tell the truth. It is always
+a mortal sin.
+Slander means telling a lie about one’s character.
+Detraction means telling a truth about another’s moral failings or
+weaknesses.
+Slander and detraction may be mortal sins depending on the amount of
+damage done to one’s reputation.
 Q: What are the precepts (laws) of the Church?
 A: Q: To assist at Mass on all Sundays and holy days of obligation.
 Q: To fast and to abstain on the days appointed.
@@ -138,62 +178,146 @@ A: Q: To confess our sins at least once a year.
 Q: To receive Holy Communion during the Easter time.
 A: Q: To contribute to the support of the Church.
 Q: What is fasting? What is abstinence? When are these obligatory?
-A: Fasting is to take no food or liquid for a certain time. On fast days only one full meal is allowed, but one or two smaller meals may be taken, if needed for strength. Fasting is binding on those from ages 18 to Q: Abstinence is refraining from doing something, especially from eating certain foods. A day of abstinence is one on which we are not allowed to eat meat. All Fridays and Ash Wednesday are days of abstinence. Abstinence from meat is obligatory for Catholics who have passed their fourteenth year.
-Q: What happens when a Catholic marries outside the Catholic Church, i.e. apart from the law of the Church? Can the divorced remarry?
-A: A Catholic who marries outside the Catholic Church (e.g. by a judge or a Protestant minister) commits sin and is not married at all. A divorced Catholic is not allowed to remarry while his spouse is still living.
+A: Fasting is to take no food or liquid for a certain time. On fast days only
+one full meal is allowed, but one or two smaller meals may be taken, if
+needed for strength. Fasting is binding on those from ages 18 to 60.
+Abstinence is refraining from doing something, especially from eating
+certain foods. A day of abstinence is one on which we are not allowed
+to eat meat. All Fridays and Ash Wednesday are days of abstinence.
+Abstinence from meat is obligatory for Catholics who have passed
+their fourteenth year.
+Q: What happens when a Catholic marries outside the Catholic
+A: Church, i.e. apart from the law of the Church? Can the divorced
+remarry?
+A Catholic who marries outside the Catholic Church (e.g. by a judge
+or a Protestant minister) commits sin and is not married at all.
+A divorced Catholic is not allowed to remarry while his spouse is still
+living.
 Q: What is a sacrament?
 A: A sacrament is an outward sign instituted by Christ to give grace.
 Q: What are the names of the seven sacraments?
-A: The names of the seven sacraments are: Baptism, Confirmation, Holy Eucharist, Penance, Anointing of the Sick, Holy Orders, and Matrimony.
+A: The names of the seven sacraments are: Baptism, Confirmation, Holy
+Eucharist, Penance, Anointing of the Sick, Holy Orders, and
+Matrimony.
 Q: Which sacraments can be received only once?
-A: Baptism, Confirmation, and Holy Orders can only be received once. A man, however, may receive each of the three degrees of Holy Orders.
+A: Baptism, Confirmation, and Holy Orders can only be received once. A
+man, however, may receive each of the three degrees of Holy Orders.
 Q: How is baptism given? What does baptism do for you?
-A: Baptism is given in this way: the one baptizing pours water over the forehead 3 times of the one to be baptized, saying, “I baptize you in the name of the Father, and of the Son, and of the Holy Spirit.” Baptism gives us the new life of sanctifying grace by which we become children of God and heirs of heaven.
+A: Baptism is given in this way: the one baptizing pours water over the
+forehead 3 times of the one to be baptized, saying, “I baptize you in
+the name of the Father, and of the Son, and of the Holy Spirit.”
+Baptism gives us the new life of sanctifying grace by which we
+become children of God and heirs of heaven.
 Q: What is confirmation? Who usually gives it?
-A: Confirmation is the sacrament through which the Holy Spirit enables us to profess our faith as strong and perfect Christians and soldiers of Jesus Christ. The bishop is the usual minister of Confirmation.
+A: Confirmation is the sacrament through which the Holy Spirit enables
+us to profess our faith as strong and perfect Christians and soldiers of
+Jesus Christ.
+The bishop is the usual minister of Confirmation.
 Q: What is chrism?
-A: Holy chrism is a mixture of olive oil and balm, blessed by the bishop on Holy Thursday.
+A: Holy chrism is a mixture of olive oil and balm, blessed by the bishop
+on Holy Thursday.
 Q: What is the Eucharist? When was it first given?
-A: Holy Eucharist is a sacrament and a sacrifice. In the Holy Eucharist, under the appearance of bread and wine, Jesus Christ is contained, offered, and received. The institution of this most Blessed Sacrament of Holy Eucharist was on Holy Thursday at the Last Supper, the night before He died.
-Q: Who consecrates the Eucharist? How is it consecrated? What materials are necessary for it?
-A: The priest consecrates the Eucharist. It is consecrated by the words spoken at the time of the consecration during the Holy Sacrifice of the Mass: “This is my body...” and This is my blood...”. The materials that are necessary are pure wheat bread and wine made from grapes.
+A: Holy Eucharist is a sacrament and a sacrifice. In the Holy Eucharist,
+under the appearance of bread and wine, Jesus Christ is contained,
+offered, and received.
+The institution of this most Blessed Sacrament of Holy Eucharist was
+on Holy Thursday at the Last Supper, the night before He died.
+Q: Who consecrates the Eucharist? How is it consecrated? What
+A: materials are necessary for it?
+The priest consecrates the Eucharist.
+It is consecrated by the words spoken at the time of the consecration
+during the Holy Sacrifice of the Mass: “This is my body...” and This is
+my blood...”.
+The materials that are necessary are pure wheat bread and wine made
+from grapes.
 Q: What is transubstantiation?
-A: Transubstantiation is the change of the entire substance of the bread and wine into the Body and Blood of Christ.
-Q: Is the whole Christ present in the Eucharist? In each form? In each part of each form?
-A: The whole Christ is present Body, Blood, Soul and Divinity in the Eucharist. Jesus Christ is whole and entire under the appearance of bread and under the appearance of wine and under every particle of each form that can be recognized as such.
+A: Transubstantiation is the change of the entire substance of the bread
+and wine into the Body and Blood of Christ.
+Q: Is the whole Christ present in the Eucharist? In each form? In
+A: each part of each form?
+The whole Christ is present Body, Blood, Soul and Divinity in the
+Eucharist.
+Jesus Christ is whole and entire under the appearance of bread and
+under the appearance of wine and under every particle of each form
+that can be recognized as such.
 Q: Why do we genuflect and why do we kneel in the church?
-A: We genuflect to pay our reverence and respect to God who is present in the Most Blessed Sacrament of Holy Eucharist reserved in the tabernacle.
+A: We genuflect to pay our reverence and respect to God who is present
+in the Most Blessed Sacrament of Holy Eucharist reserved in the
+tabernacle.
 Q: What is the Mass?
-A: The Mass is the sacrifice of the New Law in which Christ, through the ministry of the priest, offers Himself to God in an unbloody manner under the appearances of bread and wine.
+A: The Mass is the sacrifice of the New Law in which Christ, through the
+ministry of the priest, offers Himself to God in an unbloody manner
+under the appearances of bread and wine.
 Q: What is meant by sacrifice?
-A: A sacrifice is the offering of a victim by a priest to God alone, and the destruction of it in some way to acknowledge that He is the Creator of all things.
+A: A sacrifice is the offering of a victim by a priest to God alone, and the
+destruction of it in some way to acknowledge that He is the Creator of
+all things.
 Q: What are the conditions for receiving Communion?
-A: The conditions for receiving communion are: One must be free from mortal sin, to have a right intention, and to obey the Church’s laws on the fast required before Holy Communion (one hour from all food and drink, except water).
+A: The conditions for receiving communion are:
+One must be free from mortal sin, to have a right intention, and to
+obey the Church’s laws on the fast required before Holy Communion
+(one hour from all food and drink, except water).
 Q: What is a monstrance?
-A: A monstrance is a sacred vessel in which the host is held and displayed for the purpose of exposition and adoration of Jesus in the Blessed Sacrament.
+A: A monstrance is a sacred vessel in which the host is held and displayed
+for the purpose of exposition and adoration of Jesus in the Blessed
+Sacrament.
 Q: What is absolution (in the sacrament of penance)?
 A: Absolution is the freeing from sin by God through the priest.
-Q: Is it sufficient to tell our sins privately to God for obtaining forgiveness?
-A: Confession of mortal sins is always necessary. By prayer one may be forgiven venial sins. Mortal sin may also be forgiven by an act of perfect contrition but must always include the intention to go to confession.
+Q: Is it sufficient to tell our sins privately to God for obtaining
+A: forgiveness?
+Confession of mortal sins is always necessary. By prayer one may be
+forgiven venial sins. Mortal sin may also be forgiven by an act of
+perfect contrition but must always include the intention to go to
+confession.
 Q: What is an examination of conscience?
-A: Examination of conscience is a sincere effort to call to mind all the sins we have committed since our last worthy confession.
+A: Examination of conscience is a sincere effort to call to mind all the
+sins we have committed since our last worthy confession.
 Q: What is contrition? Explain the two kinds of contrition.
-A: Contrition is sincere sorrow for having offended God, and hatred for the sins we have committed, with a firm purpose of sinning no more. The two kinds of contrition are perfect contrition, and imperfect contrition. Perfect contrition is when we are sorry for our sins because sin offends God whom we love above all things for His own sake. Imperfect contrition is when we are sorry for our sins because they are hateful in themselves or because we fear God’s punishment.
+A: Contrition is sincere sorrow for having offended God, and hatred for
+the sins we have committed, with a firm purpose of sinning no more.
+The two kinds of contrition are perfect contrition, and imperfect
+contrition. Perfect contrition is when we are sorry for our sins because
+sin offends God whom we love above all things for His own sake.
+Imperfect contrition is when we are sorry for our sins because they are
+hateful in themselves or because we fear God’s punishment.
 Q: Does communal penance substitute for confession? Explain?
-A: No, communal penance may only be received in unusual circumstances. To receive forgiveness in this way, one must intend to confess later any mortal sins that were forgiven.
-Q: What happens if we forget a sin in confession? What happens if we deliberately withhold a sin in confession?
-A: If without our fault we forget to confess a mortal sin, we are forgiven and may receive Holy Communion. The mortal sin must yet be confessed at the next confession when it is recalled. If we deliberately withhold a sin in confession no sins we have confessed are forgiven; moreover, we commit another mortal sin of sacrilege.
+A: No, communal penance may only be received in unusual
+circumstances. To receive forgiveness in this way, one must intend to
+confess later any mortal sins that were forgiven.
+Q: What happens if we forget a sin in confession? What happens if we
+A: deliberately withhold a sin in confession?
+If without our fault we forget to confess a mortal sin, we are forgiven
+and may receive Holy Communion. The mortal sin must yet be
+confessed at the next confession when it is recalled.
+If we deliberately withhold a sin in confession no sins we have
+confessed are forgiven; moreover, we commit another mortal sin of
+sacrilege.
 Q: What is meant by the seal of confession?
-A: By the seal of confession is meant that the priest is bound never to reveal any sin that has been confessed to him.
-Q: How do we make up for the punishment due to our sins once they have been forgiven?
-A: We can make up for the punishment due to our sins by performing the penance imposed after confession and by prayer, attending Mass, fasting, almsgiving, the works of mercy, the patient endurance of sufferings, and indulgences.
+A: By the seal of confession is meant that the priest is bound never to
+reveal any sin that has been confessed to him.
+Q: How do we make up for the punishment due to our sins once they
+A: have been forgiven?
+We can make up for the punishment due to our sins by performing the
+penance imposed after confession and by prayer, attending Mass,
+fasting, almsgiving, the works of mercy, the patient endurance of
+sufferings, and indulgences.
 Q: What is an indulgence?
-A: An indulgence is the remission of all or some of the temporal punishment due to our sins.
+A: An indulgence is the remission of all or some of the temporal
+punishment due to our sins.
 Q: What is the purpose of the sacrament of the Anointing of the Sick?
-A: The purpose of the sacrament of the Anointing of the Sick is to give health and strength to the soul, and sometimes to the body, when we are in danger of death from sickness, accident, or old age.
+A: The purpose of the sacrament of the Anointing of the Sick is to give
+health and strength to the soul, and sometimes to the body, when we
+are in danger of death from sickness, accident, or old age.
 Q: What are the three degrees of the sacrament of holy Orders?
-A: The three degrees of Holy Orders are those of deacon, priest, and bishop.
+A: The three degrees of Holy Orders are those of deacon, priest, and
+bishop.
 Q: What is the reason that God gave us marriage?
-A: God gave us the sacrament of marriage to create new human life and for a man to love his wife as Christ loves the Church and for a woman to love her husband as the Church submits to Christ. Man and woman freely bind themselves for life in a marriage and receive the grace from God to discharge their duties.
+A: God gave us the sacrament of marriage to create new human life and
+for a man to love his wife as Christ loves the Church and for a woman
+to love her husband as the Church submits to Christ. Man and woman
+freely bind themselves for life in a marriage and receive the grace
+from God to discharge their duties.
 Q: What is a sacramental? Give examples of sacramentals.
-A: Sacramentals are holy things or actions which the Church uses to obtain spiritual and temporal favors from God. Sacramentals include blessings given by priests and bishops; holy water, blessed objects.
+A: Sacramentals are holy things or actions which the Church uses to
+obtain spiritual and temporal favors from God. Sacramentals include
+blessings given by priests and bishops; holy water, blessed objects.

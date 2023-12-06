@@ -119,22 +119,19 @@ int parse_string_to_qanda(QandA *qanda, char *text) {
   return 1;
 }
 
-void get_qanda_string(QandA qanda, char *str, size_t num_qs, bool inc_last_answer) {
+void get_qanda_string(QandA qanda, char *str, size_t q_num, bool inc_answer) {
   strcpy(str, "\0");
-  for (size_t i=0; i<num_qs; i++) {
-    strcat(str, "Q: ");
-    strcat(str, *(qanda.questions + i));
-    strcat(str, "\n");
-    if (i==num_qs-1 && !inc_last_answer) continue;
-    strcat(str, "A: ");
-    strcat(str, *(qanda.answers + i));
-    strcat(str, "\n\n");
-  }
+  strcat(str, "Q: ");
+  strcat(str, qanda.questions[q_num]);
+  if (!inc_answer) return;
+  strcat(str, "\n");
+  strcat(str, "A: ");
+  strcat(str, qanda.answers[q_num]);
 } 
 
-#define WIDTH 800
-#define HEIGHT 600
-#define FONTSIZE 24
+#define WIDTH 200
+#define HEIGHT 200
+#define FONTSIZE 30
 #define BACKGROUND_COLOUR CLITERAL(Color){ 0x10, 0x10, 0x20, 0xFF }
 #define PADDING 10
 #define TITLEHEIGHT (FONTSIZE+10)
@@ -184,13 +181,17 @@ int main(void) {
 
   GuiSetStyle(DEFAULT, TEXT_SIZE, FONTSIZE);
   GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xEEEEEEFF);
-  GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0x000000FF);
-  GuiSetStyle(DEFAULT, TEXT_LINE_SPACING, 24);
+  GuiSetStyle(DEFAULT, TEXT_LINE_SPACING, 30);
   GuiSetStyle(DEFAULT, TEXT_WRAP_MODE, TEXT_WRAP_WORD); 
-  // GuiSetStyle(DEFAULT, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_TOP);
-  // GuiSetStyle(BUTTON, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_MIDDLE);
+  GuiSetStyle(DEFAULT, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_TOP);
+  GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
+  GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0x000000FF);
+  GuiSetStyle(BUTTON, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_MIDDLE);
+  GuiSetStyle(BUTTON, TEXT_ALIGNMENT, TEXT_ALIGN_CENTER);
 
   size_t reveal_q_num = 0;
+  bool include_answer = false;
+  get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
   while (!WindowShouldClose()) {
     window_width = GetScreenWidth();
     window_height = GetScreenHeight();
@@ -208,35 +209,39 @@ int main(void) {
     reset_btn_rect.x   = window_width-PADDING-BTNWIDTH;
 
     if (GuiButton(advance_btn_rect, "Next")) {
-      reveal_q_num++;
-      if (reveal_q_num>qanda.length) reveal_q_num = qanda.length;
-      get_qanda_string(qanda, string_to_print, reveal_q_num, true);
-
-      size_t line_count = 0;
-      size_t char_count = 0;
-      for (size_t i=0; i<strlen(string_to_print); i++) {
-        if (string_to_print[i] == '\n') {
-          line_count += 1 + char_count / (window_width / 10);
-          char_count = 0;
-        }
-        char_count++;
+      if (include_answer) {
+        include_answer = false;
+        if (reveal_q_num<qanda.length-1) reveal_q_num++;
+      } else {
+        include_answer = true;
       }
-      TraceLog(LOG_INFO, "line_count = %zu", line_count);
+      get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
     }
+
     if (GuiButton(decr_btn_rect, "Back")) {
-      if (reveal_q_num>0) reveal_q_num--;
+      if (include_answer) {
+        include_answer = false;
+      } else if (reveal_q_num>0) {
+        include_answer = true;
+        reveal_q_num--;
+      }
+
+      get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
     }
+
     if (GuiButton(reset_btn_rect, "Reset")) {
-      reveal_q_num = 0;
+      reveal_q_num = 1;
+      include_answer = false;
+      get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
     }
 
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
 
-      GuiTextBox(title_box, qanda.title, TEXT_SIZE, false);
+      GuiTextBox(title_box, qanda.title, strlen(qanda.title), false);
 
       // DrawRectangleRec(GetTextBounds(TEXTBOX, text_box), RED);
-      GuiTextBox(text_box, string_to_print, 100000, false);
+      GuiTextBox(text_box, string_to_print, strlen(string_to_print), false);
 
     EndDrawing();
   }
