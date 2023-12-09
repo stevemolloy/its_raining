@@ -25,6 +25,9 @@ $(OBJ)/%.o: $(SRC)/%.c
 clean:
 	rm -rf $(BINDIR) $(OBJ)
 
+run: $(BIN)
+	./$(BIN)
+
 $(OBJ):
 	@mkdir -p $@
 
