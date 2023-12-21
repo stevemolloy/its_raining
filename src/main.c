@@ -6,9 +6,6 @@
 
 #include "memo.h"
 
-#define RAYGUI_IMPLEMENTATION
-#include <raygui.h>
-
 #define BACKGROUND_COLOUR CLITERAL(Color){ 0x20, 0x20, 0x20, 0xFF }
 
 #define INITIAL_WIDTH 900
@@ -26,10 +23,6 @@
 int main(void) {
   const char* catechism_file = "./fake_catechism.txt";
   char *file_contents = LoadFileText(catechism_file);
-  if (strlen(file_contents)<7) {
-    fprintf(stderr, "File %s does not use the correct format\n", catechism_file);
-    exit(1);
-  }
 
   QandA qanda = empty_qanda();
   parse_string_to_qanda(&qanda, file_contents);
@@ -41,15 +34,17 @@ int main(void) {
   }
 
   InitWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "It's raining...");
+
   int monitor_number = GetCurrentMonitor();
   int window_width = GetMonitorWidth(monitor_number) / 2;
   int window_height = GetMonitorHeight(monitor_number) * 2 / 3;
   SetWindowSize(window_width, window_height);
   SetWindowState(FLAG_WINDOW_RESIZABLE);
-  SetTargetFPS(30);
+  SetWindowMinSize(4*PADDING + 3*BTNWIDTH, 4*PADDING + TITLEHEIGHT + 300 + CONTROLSHEIGHT);
+
+  SetTargetFPS(60);
 
   Font font = LoadFontEx("fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, NULL, 0);
-  GuiSetFont(font);
 
   int usable_width = window_width - 2*PADDING;
   int controls_y = window_height - CONTROLSHEIGHT - PADDING;
@@ -60,23 +55,10 @@ int main(void) {
   Rectangle decr_btn_rect    = {.x=PADDING*2+BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
   Rectangle reset_btn_rect   = {.x=window_width-PADDING-BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
 
-  int min_allowed_window_width  = 4*PADDING + 3*BTNWIDTH;
-  int min_allowed_window_height = 4*PADDING + TITLEHEIGHT + 300 + CONTROLSHEIGHT;
-  SetWindowMinSize(min_allowed_window_width, min_allowed_window_height);
-
-  GuiSetStyle(DEFAULT, TEXT_SIZE, FONTSIZE);
-  GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, 0xEEEEEEFF);
-  GuiSetStyle(DEFAULT, TEXT_LINE_SPACING, 30);
-  GuiSetStyle(DEFAULT, TEXT_WRAP_MODE, TEXT_WRAP_WORD); 
-  GuiSetStyle(DEFAULT, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_TOP);
-  GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
-  GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, 0x000000FF);
-  GuiSetStyle(BUTTON, TEXT_ALIGNMENT_VERTICAL, TEXT_ALIGN_MIDDLE);
-  GuiSetStyle(BUTTON, TEXT_ALIGNMENT, TEXT_ALIGN_CENTER);
-
   size_t reveal_q_num = 0;
   bool include_answer = false;
   get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
+
   while (!WindowShouldClose()) {
     if (IsWindowResized()) {
       window_width = GetScreenWidth();
@@ -95,39 +77,15 @@ int main(void) {
       reset_btn_rect.x   = window_width-PADDING-BTNWIDTH;
     }
 
-    if (GuiButton(advance_btn_rect, "Next")) {
-      if (reveal_q_num < qanda.length && !include_answer) {
-        include_answer = true;
-      } else if (reveal_q_num < qanda.length - 1) {
-        include_answer = false;
-        reveal_q_num++;
-      }
-      get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
-    }
-
-    if (GuiButton(decr_btn_rect, "Back")) {
-      if (reveal_q_num == 0) {
-        if (include_answer) include_answer = false;
-      } else {
-        if (include_answer) include_answer = false;
-        else {
-          include_answer = true;
-          reveal_q_num--;
-        }
-      }
-      get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
-    }
-
-    if (GuiButton(reset_btn_rect, "Reset")) {
-      reveal_q_num = 0;
-      include_answer = false;
-      get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
-    }
-
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
-      GuiTextBox(title_box, qanda.title, strlen(qanda.title), false);
-      GuiTextBox(text_box, string_to_print, strlen(string_to_print), false);
+
+      DrawRectangleRec(title_box, RED);
+      DrawRectangleRec(text_box, BLUE);
+      DrawRectangleRec(controls_box, RED);
+      DrawRectangleRec(advance_btn_rect, GREEN);
+      DrawRectangleRec(decr_btn_rect, GREEN);
+      DrawRectangleRec(reset_btn_rect, GREEN);
     EndDrawing();
   }
 
