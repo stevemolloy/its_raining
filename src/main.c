@@ -9,10 +9,10 @@
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
 
-#define WIDTH 500
-#define HEIGHT 600
-
 #define BACKGROUND_COLOUR CLITERAL(Color){ 0x20, 0x20, 0x20, 0xFF }
+
+#define INITIAL_WIDTH 900
+#define INITIAL_HEIGHT 600
 
 #define FONTSIZE 30
 #define PADDING 10
@@ -24,7 +24,7 @@
 #define BTNHEIGHT (CONTROLSHEIGHT-2*BTNPADDING)
 
 int main(void) {
-  const char* catechism_file = "./catholic_catechism.txt";
+  const char* catechism_file = "./fake_catechism.txt";
   char *file_contents = LoadFileText(catechism_file);
   if (strlen(file_contents)<7) {
     fprintf(stderr, "File %s does not use the correct format\n", catechism_file);
@@ -40,11 +40,13 @@ int main(void) {
     exit(1);
   }
 
-  int window_width = WIDTH;
-  int window_height = HEIGHT;
-  InitWindow(window_width, window_height, "It's raining...");
+  InitWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "It's raining...");
+  int monitor_number = GetCurrentMonitor();
+  int window_width = GetMonitorWidth(monitor_number) / 2;
+  int window_height = GetMonitorHeight(monitor_number) * 2 / 3;
+  SetWindowSize(window_width, window_height);
   SetWindowState(FLAG_WINDOW_RESIZABLE);
-  SetTargetFPS(60);
+  SetTargetFPS(30);
 
   Font font = LoadFontEx("fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, NULL, 0);
   GuiSetFont(font);
@@ -76,49 +78,56 @@ int main(void) {
   bool include_answer = false;
   get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
   while (!WindowShouldClose()) {
-    window_width = GetScreenWidth();
-    window_height = GetScreenHeight();
+    if (IsWindowResized()) {
+      window_width = GetScreenWidth();
+      window_height = GetScreenHeight();
 
-    usable_width = window_width - 2*PADDING;
-    controls_y = window_height - CONTROLSHEIGHT - PADDING;
-    title_box.width = usable_width;
-    controls_box.width = usable_width;
-    controls_box.y = controls_y;
-    text_box.width = window_width - 2*PADDING;
-    text_box.height = controls_y - 3*PADDING - title_box.height;
-    advance_btn_rect.y = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
-    decr_btn_rect.y    = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
-    reset_btn_rect.y   = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
-    reset_btn_rect.x   = window_width-PADDING-BTNWIDTH;
+      usable_width = window_width - 2*PADDING;
+      controls_y = window_height - CONTROLSHEIGHT - PADDING;
+      title_box.width = usable_width;
+      controls_box.width = usable_width;
+      controls_box.y = controls_y;
+      text_box.width = window_width - 2*PADDING;
+      text_box.height = controls_y - 3*PADDING - title_box.height;
+      advance_btn_rect.y = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
+      decr_btn_rect.y    = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
+      reset_btn_rect.y   = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
+      reset_btn_rect.x   = window_width-PADDING-BTNWIDTH;
+    }
 
     if (GuiButton(advance_btn_rect, "Next")) {
-      include_answer = !include_answer;
-      if (include_answer) {
-        if (reveal_q_num<qanda.length-1) reveal_q_num++;
-      } 
+      if (reveal_q_num < qanda.length && !include_answer) {
+        include_answer = true;
+      } else if (reveal_q_num < qanda.length - 1) {
+        include_answer = false;
+        reveal_q_num++;
+      }
       get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
     }
 
     if (GuiButton(decr_btn_rect, "Back")) {
-      include_answer = !include_answer;
-      if (reveal_q_num>0) reveal_q_num--;
-
+      if (reveal_q_num == 0) {
+        if (include_answer) include_answer = false;
+      } else {
+        if (include_answer) include_answer = false;
+        else {
+          include_answer = true;
+          reveal_q_num--;
+        }
+      }
       get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
     }
 
     if (GuiButton(reset_btn_rect, "Reset")) {
-      reveal_q_num = 1;
+      reveal_q_num = 0;
       include_answer = false;
       get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
     }
 
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
-
       GuiTextBox(title_box, qanda.title, strlen(qanda.title), false);
-
       GuiTextBox(text_box, string_to_print, strlen(string_to_print), false);
-
     EndDrawing();
   }
 
