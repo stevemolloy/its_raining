@@ -138,12 +138,20 @@ int main(void) {
       }
     }
 
+    Vector2 text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
+
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
 
       DrawTextEx(font, qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
 
-      DrawTextEx(font, string_to_print, main_text_location, FONTSIZE, 0, LIGHTGRAY);
+      Vector2 adjusted_text_location = main_text_location;
+      if (text_size.y > text_box.height) {
+        adjusted_text_location.y -= PADDING + text_size.y - text_box.height;
+      }
+      BeginScissorMode(text_box.x, text_box.y, text_box.width, text_box.height);
+        DrawTextEx(font, string_to_print, adjusted_text_location, FONTSIZE, 0, LIGHTGRAY);
+      EndScissorMode();
 
       DrawRectangleRounded(next_btn_rect, 0.4, 4, LIGHTGRAY);
       DrawTextEx(font, NEXT_BTN_TEXT, next_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
