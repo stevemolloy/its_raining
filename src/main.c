@@ -20,6 +20,10 @@
 #define BTNWIDTH 125
 #define BTNHEIGHT (CONTROLSHEIGHT-2*BTNPADDING)
 
+#define NEXT_BTN_TEXT  "Next"
+#define BACK_BTN_TEXT  "Back"
+#define RESET_BTN_TEXT "Reset"
+
 int main(void) {
   char* catechism_file = "./fake_catechism.txt";
   char *buffer;
@@ -47,6 +51,9 @@ int main(void) {
   SetTargetFPS(60);
 
   Font font = LoadFontEx("fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, NULL, 0);
+  Vector2 next_btn_text_size  = MeasureTextEx(font, NEXT_BTN_TEXT, FONTSIZE, 0);
+  Vector2 back_btn_text_size  = MeasureTextEx(font, BACK_BTN_TEXT, FONTSIZE, 0);
+  Vector2 reset_btn_text_size = MeasureTextEx(font, RESET_BTN_TEXT, FONTSIZE, 0);
 
   int usable_width = window_width - 2*PADDING;
   int controls_y = window_height - CONTROLSHEIGHT - PADDING;
@@ -55,14 +62,27 @@ int main(void) {
   Rectangle controls_box     = {.x=PADDING, .y=controls_y, .width=usable_width, .height=CONTROLSHEIGHT};
   Rectangle text_box         = {.x=PADDING, .y=PADDING + TITLEHEIGHT + PADDING, .width=window_width-2*PADDING, .height=controls_y - 2*PADDING - title_box.height };
   Vector2 main_text_location = {.x=text_box.x, text_box.y+PADDING/2.0};
-  Rectangle advance_btn_rect = {.x=PADDING, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
-  Rectangle decr_btn_rect    = {.x=PADDING*2+BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
+  Rectangle next_btn_rect = {.x=PADDING, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
+  Rectangle back_btn_rect    = {.x=PADDING*2+BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
   Rectangle reset_btn_rect   = {.x=window_width-PADDING-BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
+  Vector2 next_btn_text_location = {
+    .x = next_btn_rect.x + (BTNWIDTH/2.0)-(next_btn_text_size.x/2.0),
+    .y = next_btn_rect.y + (BTNHEIGHT/2.0) - (next_btn_text_size.y/2.0)
+  };
+  Vector2 back_btn_text_location = {
+    .x = back_btn_rect.x + (BTNWIDTH/2.0)-(back_btn_text_size.x/2.0),
+    .y = back_btn_rect.y + (BTNHEIGHT/2.0) - (back_btn_text_size.y/2.0)
+  };
+  Vector2 reset_btn_text_location = {
+    .x = reset_btn_rect.x + (BTNWIDTH/2.0)-(reset_btn_text_size.x/2.0),
+    .y = reset_btn_rect.y + (BTNHEIGHT/2.0) - (reset_btn_text_size.y/2.0)
+  };
 
   SetTextLineSpacing(FONTSIZE);
 
   size_t reveal_statement_num = 0;
   get_qanda_string(qanda, string_to_print, reveal_statement_num);
+  adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
 
   while (!WindowShouldClose()) {
     if (IsWindowResized()) {
@@ -76,32 +96,45 @@ int main(void) {
       controls_box.y = controls_y;
       text_box.width = window_width - 2*PADDING;
       text_box.height = controls_y - 3*PADDING - title_box.height;
-      advance_btn_rect.y = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
-      decr_btn_rect.y    = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
+      next_btn_rect.y = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
+      back_btn_rect.y    = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
       reset_btn_rect.y   = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
       reset_btn_rect.x   = window_width-PADDING-BTNWIDTH;
+
+      next_btn_text_location.x  = next_btn_rect.x + (BTNWIDTH/2.0)-(next_btn_text_size.x/2.0);
+      next_btn_text_location.y  = next_btn_rect.y + (BTNHEIGHT/2.0) - (next_btn_text_size.y/2.0);
+      back_btn_text_location.x  = back_btn_rect.x + (BTNWIDTH/2.0)-(back_btn_text_size.x/2.0);
+      back_btn_text_location.y  = back_btn_rect.y + (BTNHEIGHT/2.0) - (back_btn_text_size.y/2.0);
+      reset_btn_text_location.x = reset_btn_rect.x + (BTNWIDTH/2.0)-(reset_btn_text_size.x/2.0);
+      reset_btn_text_location.y = reset_btn_rect.y + (BTNHEIGHT/2.0) - (reset_btn_text_size.y/2.0);
+
+      get_qanda_string(qanda, string_to_print, reveal_statement_num);
+      adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
     }
 
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
       Vector2 click_pos = GetMousePosition();
 
-      if (CheckCollisionPointRec(click_pos, advance_btn_rect)) {
+      if (CheckCollisionPointRec(click_pos, next_btn_rect)) {
         if (reveal_statement_num < num_lines-1) {
           reveal_statement_num += 1;
           get_qanda_string(qanda, string_to_print, reveal_statement_num);
+          adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
         }
       }
 
-      if (CheckCollisionPointRec(click_pos, decr_btn_rect)) {
+      if (CheckCollisionPointRec(click_pos, back_btn_rect)) {
         if (reveal_statement_num > 0) {
           reveal_statement_num -= 1;
           get_qanda_string(qanda, string_to_print, reveal_statement_num);
+          adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
         }
       }
 
       if (CheckCollisionPointRec(click_pos, reset_btn_rect)) {
         reveal_statement_num = 0;
         get_qanda_string(qanda, string_to_print, reveal_statement_num);
+        adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
       }
     }
 
@@ -109,10 +142,17 @@ int main(void) {
       ClearBackground(BACKGROUND_COLOUR);
 
       DrawTextEx(font, qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
+
       DrawTextEx(font, string_to_print, main_text_location, FONTSIZE, 0, LIGHTGRAY);
-      DrawRectangleRounded(advance_btn_rect, 0.4, 4, LIGHTGRAY);
-      DrawRectangleRounded(decr_btn_rect, 0.4, 4, LIGHTGRAY);
+
+      DrawRectangleRounded(next_btn_rect, 0.4, 4, LIGHTGRAY);
+      DrawTextEx(font, NEXT_BTN_TEXT, next_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
+
+      DrawRectangleRounded(back_btn_rect, 0.4, 4, LIGHTGRAY);
+      DrawTextEx(font, BACK_BTN_TEXT, back_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
+
       DrawRectangleRounded(reset_btn_rect, 0.4, 4, LIGHTGRAY);
+      DrawTextEx(font, RESET_BTN_TEXT, reset_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
 
     EndDrawing();
   }

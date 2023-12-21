@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <raylib.h>
 
 typedef struct {
   char *title;
@@ -26,6 +27,8 @@ int parse_string_to_qanda(QandA *qanda, char *text);
 size_t space_estimate_for_qanda(QandA qanda);
 
 void get_qanda_string(QandA qanda, char *str, size_t statement_num);
+
+void adjust_string_for_width(char *orig_str, float usable_width, Font font, float fontsize);
 
 size_t string_to_lines(char **string, char ***lines);
 

@@ -1,3 +1,4 @@
+#include "raylib.h"
 #define INITIAL_QA_COUNT 64
 #include <assert.h>
 #include <errno.h>
@@ -188,4 +189,33 @@ void get_qanda_string(QandA qanda, char *str, size_t statement_num) {
   }
   strcat(str, "\0");
 } 
+
+void adjust_string_for_width(char *orig_str, float usable_width, Font font, float fontsize) {
+  Vector2 text_size = MeasureTextEx(font, orig_str, fontsize, 0);
+  if (text_size.x <= usable_width) return;
+
+  // Split into words
+  size_t num_chars = strlen(orig_str);
+  for (size_t i=0; i<num_chars; i++) {
+    if (orig_str[i] == ' ') {
+      orig_str[i] = '\n';
+    }
+  }
+
+  for (size_t i=0; i<strlen(orig_str); i++) {
+    if (orig_str[i] == '\n') {
+      if (num_chars - i > 4 && orig_str[i+1] == '\n' && (orig_str[i+2] == 'Q' || orig_str[i+2] == 'A') && orig_str[i+3] == ':') {
+        i += 3;
+        continue;
+      }
+      orig_str[i] = ' ';
+      Vector2 size = MeasureTextEx(font, orig_str, fontsize, 0);
+      if (size.x > usable_width) {
+        orig_str[i] = '\n';
+      }
+    }
+  }
+  
+  return;
+}
 
