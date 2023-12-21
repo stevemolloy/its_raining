@@ -21,13 +21,15 @@
 #define BTNHEIGHT (CONTROLSHEIGHT-2*BTNPADDING)
 
 int main(void) {
-  const char* catechism_file = "./fake_catechism.txt";
-  char *file_contents = LoadFileText(catechism_file);
+  char* catechism_file = "./fake_catechism.txt";
+  char *buffer;
+  char **lines;
+  size_t num_lines = read_entire_file_to_lines(catechism_file, &buffer, &lines);
 
   QandA qanda = empty_qanda();
-  parse_string_to_qanda(&qanda, file_contents);
+  parse_lines_to_qanda(&qanda, lines, num_lines);
 
-  char* string_to_print = calloc(qanda.output_length, sizeof(char));
+  char* string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
   if (string_to_print==NULL) {
     fprintf(stderr, "Unable to allocate memory. Stopping execution\n");
     exit(1);
@@ -49,15 +51,18 @@ int main(void) {
   int usable_width = window_width - 2*PADDING;
   int controls_y = window_height - CONTROLSHEIGHT - PADDING;
   Rectangle title_box        = {.x=PADDING, .y=PADDING, .width=usable_width, .height=TITLEHEIGHT};
+  Vector2 title_location     = {.x=title_box.x, title_box.y+PADDING/2.0};
   Rectangle controls_box     = {.x=PADDING, .y=controls_y, .width=usable_width, .height=CONTROLSHEIGHT};
   Rectangle text_box         = {.x=PADDING, .y=PADDING + TITLEHEIGHT + PADDING, .width=window_width-2*PADDING, .height=controls_y - 2*PADDING - title_box.height };
+  Vector2 main_text_location = {.x=text_box.x, text_box.y+PADDING/2.0};
   Rectangle advance_btn_rect = {.x=PADDING, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
   Rectangle decr_btn_rect    = {.x=PADDING*2+BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
   Rectangle reset_btn_rect   = {.x=window_width-PADDING-BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
 
-  size_t reveal_q_num = 0;
-  bool include_answer = false;
-  get_qanda_string(qanda, string_to_print, reveal_q_num, include_answer);
+  SetTextLineSpacing(FONTSIZE);
+
+  size_t reveal_statement_num = 0;
+  get_qanda_string(qanda, string_to_print, reveal_statement_num);
 
   while (!WindowShouldClose()) {
     if (IsWindowResized()) {
@@ -77,21 +82,45 @@ int main(void) {
       reset_btn_rect.x   = window_width-PADDING-BTNWIDTH;
     }
 
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+      Vector2 click_pos = GetMousePosition();
+
+      if (CheckCollisionPointRec(click_pos, advance_btn_rect)) {
+        if (reveal_statement_num < num_lines-1) {
+          reveal_statement_num += 1;
+          get_qanda_string(qanda, string_to_print, reveal_statement_num);
+        }
+      }
+
+      if (CheckCollisionPointRec(click_pos, decr_btn_rect)) {
+        if (reveal_statement_num > 0) {
+          reveal_statement_num -= 1;
+          get_qanda_string(qanda, string_to_print, reveal_statement_num);
+        }
+      }
+
+      if (CheckCollisionPointRec(click_pos, reset_btn_rect)) {
+        reveal_statement_num = 0;
+        get_qanda_string(qanda, string_to_print, reveal_statement_num);
+      }
+    }
+
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
 
-      DrawRectangleRec(title_box, RED);
-      DrawRectangleRec(text_box, BLUE);
-      DrawRectangleRec(controls_box, RED);
-      DrawRectangleRec(advance_btn_rect, GREEN);
-      DrawRectangleRec(decr_btn_rect, GREEN);
-      DrawRectangleRec(reset_btn_rect, GREEN);
+      DrawTextEx(font, qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
+      DrawTextEx(font, string_to_print, main_text_location, FONTSIZE, 0, LIGHTGRAY);
+      DrawRectangleRounded(advance_btn_rect, 0.4, 4, LIGHTGRAY);
+      DrawRectangleRounded(decr_btn_rect, 0.4, 4, LIGHTGRAY);
+      DrawRectangleRounded(reset_btn_rect, 0.4, 4, LIGHTGRAY);
+
     EndDrawing();
   }
 
   free(string_to_print);
-  free_qanda(&qanda);
-  UnloadFileText(file_contents);
+  // free_qanda(&qanda);
+  free(buffer);
+  free(lines);
 
   return 0;
 }
