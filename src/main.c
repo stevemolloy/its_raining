@@ -182,6 +182,7 @@ int main(void) {
       BeginScissorMode(text_box.x, text_box.y, text_box.width, text_box.height);
         DrawTextEx(font, string_to_print, adjusted_text_location, FONTSIZE, 0, LIGHTGRAY);
       EndScissorMode();
+
       DrawRectangleRec(scroll_bar_area_rect, DARKGRAY);
       DrawRectangleRec(scroll_bar_rect, LIGHTGRAY);
 
