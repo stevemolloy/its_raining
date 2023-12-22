@@ -65,9 +65,10 @@ int main(void) {
   Rectangle text_box         = {.x=PADDING, .y=PADDING + TITLEHEIGHT + PADDING, .width=window_width-2*PADDING, .height=controls_y - 2*PADDING - title_box.height };
   Rectangle scroll_bar_area_rect  = {.x=text_box.x + text_box.width - SCROLLBARWIDTH, .y = text_box.y, .width=SCROLLBARWIDTH, .height=text_box.height};
   Vector2 main_text_location = {.x=text_box.x, text_box.y+PADDING/2.0};
-  Rectangle next_btn_rect = {.x=PADDING, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
-  Rectangle back_btn_rect    = {.x=PADDING*2+BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
-  Rectangle reset_btn_rect   = {.x=window_width-PADDING-BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
+
+  Rectangle back_btn_rect  = {.x=PADDING, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
+  Rectangle next_btn_rect  = {.x=PADDING*2+BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
+  Rectangle reset_btn_rect = {.x=window_width-PADDING-BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
   Vector2 next_btn_text_location = {
     .x = next_btn_rect.x + (BTNWIDTH/2.0)-(next_btn_text_size.x/2.0),
     .y = next_btn_rect.y + (BTNHEIGHT/2.0) - (next_btn_text_size.y/2.0)
@@ -92,20 +93,14 @@ int main(void) {
 
   Vector2 text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
 
-  bool scroll_to_end = false;
   while (!WindowShouldClose()) {
     scroll_location += scroll_speed;
-    if (scroll_location == 1.0f) {
-      scroll_to_end = false;
-    }
     if (scroll_location < 0.0) {
       scroll_location = 0.0;
     } else if (scroll_location > 1.0f) {
       scroll_location = 1.0f;
     }
-    if (!scroll_to_end) {
-      scroll_speed *= 0.9;
-    }
+    scroll_speed *= 0.9;
     if (IsWindowResized()) {
       window_width = GetScreenWidth();
       window_height = GetScreenHeight();
@@ -117,8 +112,8 @@ int main(void) {
       controls_box.y = controls_y;
       text_box.width = window_width - 2*PADDING;
       text_box.height = controls_y - 3*PADDING - title_box.height;
-      next_btn_rect.y = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
-      back_btn_rect.y    = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
+      back_btn_rect.y = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
+      next_btn_rect.y    = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
       reset_btn_rect.y   = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
       reset_btn_rect.x   = window_width-PADDING-BTNWIDTH;
       scroll_bar_area_rect.x = text_box.x + text_box.width - SCROLLBARWIDTH;
@@ -147,8 +142,7 @@ int main(void) {
           adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
           text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
           scroll_location = last_size.y / text_size.y;
-          scroll_speed = 1/150.0;
-          scroll_to_end = true;
+          scroll_speed = 10 / text_size.y;
         }
       }
 
@@ -184,7 +178,7 @@ int main(void) {
 
     float wheel_move = GetMouseWheelMove();
     if (wheel_move != 0.0f && CheckCollisionPointRec(GetMousePosition(), text_box)) {
-      scroll_speed -= wheel_move / 150;
+      scroll_speed -= wheel_move * 10 / text_size.y;
     }
 
     BeginDrawing();
