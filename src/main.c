@@ -199,7 +199,7 @@ int main(void) {
   }
 
   free(string_to_print);
-  // free_qanda(&qanda);
+  free_qanda(&qanda);
   free(buffer);
   free(lines);
 

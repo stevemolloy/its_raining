@@ -115,71 +115,8 @@ void append_to_qanda(QandA *qanda, char *statement) {
 }
 
 void free_qanda(QandA *qanda) {
-  for (size_t i=0; i<qanda->length; i++) {
-    free(qanda->statements[i]);
-  }
   free(qanda->statements);
 }
-
-/*
-int parse_string_to_qanda(QandA *qanda, char *text) {
-  char *cursor = text;
-  char *title = text;
-  size_t len = 0;
-
-  while (strncmp("\n", cursor, 1) != 0) cursor++;
-  len = cursor - title;
-  char *t = calloc(len, sizeof(char));
-  if (t==NULL) {
-    fprintf(stderr, "Unable to allocate memory. Stopping execution\n");
-    exit(1);
-  }
-  memcpy(t, title, len);
-
-  qanda->title = t;
-
-  while (strncmp("\nQ:", cursor, 3) !=0 ) cursor++;
-    // cursor now points at "Q:".  Advance it by two places and then search for "A:"
-
-  while (1) {
-    cursor += 3;
-    while (*cursor==' ') cursor++;
-    char *question = cursor;
-
-    while (strncmp("\nA:", cursor, 3) !=0 ) cursor++;
-    // cursor now points at the "A:" following the question
-
-    len = cursor-question;
-    char *q = calloc(len, sizeof(char));
-    if (q==NULL) {
-      fprintf(stderr, "Unable to allocate memory. Stopping execution\n");
-      exit(1);
-    }
-    memcpy(q, question, len);
-
-    cursor += 3;
-    while (*cursor==' ') cursor++;
-    char *answer = cursor;
-    while (*cursor != '\0' && strncmp("\nQ:", cursor, 3) !=0 ) cursor++;
-    // cursor now points at the "Q:" following the answer or the null terminator
-    
-    len = cursor - answer;
-    char *a = calloc(len, sizeof(char));
-    if (a==NULL) {
-      fprintf(stderr, "Unable to allocate memory. Stopping execution\n");
-      exit(1);
-    }
-    while (answer[len-1]=='\n') len--; // Because lines can end with multiple newlines
-    memcpy(a, answer, len);
-
-    append_to_qanda(qanda, statement);
-
-    if (*cursor=='\0') break;
-  }
-
-  return 1;
-}
-*/
 
 void get_qanda_string(QandA qanda, char *str, size_t statement_num) {
   strcpy(str, "\0");
