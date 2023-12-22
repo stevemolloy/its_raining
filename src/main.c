@@ -90,14 +90,22 @@ int main(void) {
   get_qanda_string(qanda, string_to_print, reveal_statement_num);
   adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
 
+  Vector2 text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
+
+  bool scroll_to_end = false;
   while (!WindowShouldClose()) {
     scroll_location += scroll_speed;
+    if (scroll_location == 1.0f) {
+      scroll_to_end = false;
+    }
     if (scroll_location < 0.0) {
       scroll_location = 0.0;
     } else if (scroll_location > 1.0f) {
       scroll_location = 1.0f;
     }
-    scroll_speed *= 0.9;
+    if (!scroll_to_end) {
+      scroll_speed *= 0.9;
+    }
     if (IsWindowResized()) {
       window_width = GetScreenWidth();
       window_height = GetScreenHeight();
@@ -133,10 +141,14 @@ int main(void) {
 
       if (CheckCollisionPointRec(click_pos, next_btn_rect)) {
         if (reveal_statement_num < num_lines-1) {
+          Vector2 last_size = text_size;
           reveal_statement_num += 1;
           get_qanda_string(qanda, string_to_print, reveal_statement_num);
           adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
-          scroll_location = 1.0;
+          text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
+          scroll_location = last_size.y / text_size.y;
+          scroll_speed = 1/150.0;
+          scroll_to_end = true;
         }
       }
 
@@ -145,6 +157,7 @@ int main(void) {
           reveal_statement_num -= 1;
           get_qanda_string(qanda, string_to_print, reveal_statement_num);
           adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+          text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
           scroll_location = 1.0;
         }
       }
@@ -153,11 +166,11 @@ int main(void) {
         reveal_statement_num = 0;
         get_qanda_string(qanda, string_to_print, reveal_statement_num);
         adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+        text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
         scroll_location = 1.0;
       }
     }
 
-    Vector2 text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
 
     Vector2 adjusted_text_location = main_text_location;
     Rectangle scroll_bar_rect = scroll_bar_area_rect;
