@@ -20,6 +20,8 @@
 #define BTNWIDTH 125
 #define BTNHEIGHT (CONTROLSHEIGHT-2*BTNPADDING)
 
+#define SCROLLBARWIDTH (PADDING * 2)
+
 #define NEXT_BTN_TEXT  "Next"
 #define BACK_BTN_TEXT  "Back"
 #define RESET_BTN_TEXT "Reset"
@@ -55,12 +57,13 @@ int main(void) {
   Vector2 back_btn_text_size  = MeasureTextEx(font, BACK_BTN_TEXT, FONTSIZE, 0);
   Vector2 reset_btn_text_size = MeasureTextEx(font, RESET_BTN_TEXT, FONTSIZE, 0);
 
-  int usable_width = window_width - 2*PADDING;
+  int usable_width = window_width - 2*PADDING - SCROLLBARWIDTH;;
   int controls_y = window_height - CONTROLSHEIGHT - PADDING;
   Rectangle title_box        = {.x=PADDING, .y=PADDING, .width=usable_width, .height=TITLEHEIGHT};
   Vector2 title_location     = {.x=title_box.x, title_box.y+PADDING/2.0};
   Rectangle controls_box     = {.x=PADDING, .y=controls_y, .width=usable_width, .height=CONTROLSHEIGHT};
   Rectangle text_box         = {.x=PADDING, .y=PADDING + TITLEHEIGHT + PADDING, .width=window_width-2*PADDING, .height=controls_y - 2*PADDING - title_box.height };
+  Rectangle scroll_bar_area_rect  = {.x=text_box.x + text_box.width - SCROLLBARWIDTH, .y = text_box.y, .width=SCROLLBARWIDTH, .height=text_box.height};
   Vector2 main_text_location = {.x=text_box.x, text_box.y+PADDING/2.0};
   Rectangle next_btn_rect = {.x=PADDING, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
   Rectangle back_btn_rect    = {.x=PADDING*2+BTNWIDTH, .y=window_height-CONTROLSHEIGHT-PADDING+BTNPADDING, .width=BTNWIDTH, .height=BTNHEIGHT};
@@ -89,7 +92,7 @@ int main(void) {
       window_width = GetScreenWidth();
       window_height = GetScreenHeight();
 
-      usable_width = window_width - 2*PADDING;
+      usable_width = window_width - 2*PADDING - SCROLLBARWIDTH;
       controls_y = window_height - CONTROLSHEIGHT - PADDING;
       title_box.width = usable_width;
       controls_box.width = usable_width;
@@ -100,6 +103,9 @@ int main(void) {
       back_btn_rect.y    = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
       reset_btn_rect.y   = window_height-CONTROLSHEIGHT-PADDING+BTNPADDING;
       reset_btn_rect.x   = window_width-PADDING-BTNWIDTH;
+      scroll_bar_area_rect.x = text_box.x + text_box.width - SCROLLBARWIDTH;
+      scroll_bar_area_rect.width = SCROLLBARWIDTH;
+      scroll_bar_area_rect.height = text_box.height;
 
       next_btn_text_location.x  = next_btn_rect.x + (BTNWIDTH/2.0)-(next_btn_text_size.x/2.0);
       next_btn_text_location.y  = next_btn_rect.y + (BTNHEIGHT/2.0) - (next_btn_text_size.y/2.0);
@@ -140,18 +146,27 @@ int main(void) {
 
     Vector2 text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
 
+    Vector2 adjusted_text_location = main_text_location;
+    Rectangle scroll_bar_rect = scroll_bar_area_rect;
+    scroll_bar_rect.x += 2;
+    scroll_bar_rect.width -= 4;
+    if (text_size.y > text_box.height) {
+      adjusted_text_location.y -= PADDING + text_size.y - text_box.height;
+      scroll_bar_rect.height *= text_box.height / text_size.y;
+      scroll_bar_rect.y = text_box.y + text_box.height - scroll_bar_rect.height;
+    }
+
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
 
       DrawTextEx(font, qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
 
-      Vector2 adjusted_text_location = main_text_location;
-      if (text_size.y > text_box.height) {
-        adjusted_text_location.y -= PADDING + text_size.y - text_box.height;
-      }
+      // DrawRectangleRoundedLines(text_box, 0.02, 7, 2, LIGHTGRAY);
       BeginScissorMode(text_box.x, text_box.y, text_box.width, text_box.height);
         DrawTextEx(font, string_to_print, adjusted_text_location, FONTSIZE, 0, LIGHTGRAY);
       EndScissorMode();
+      DrawRectangleRec(scroll_bar_area_rect, DARKGRAY);
+      DrawRectangleRec(scroll_bar_rect, LIGHTGRAY);
 
       DrawRectangleRounded(next_btn_rect, 0.4, 4, LIGHTGRAY);
       DrawTextEx(font, NEXT_BTN_TEXT, next_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
