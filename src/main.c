@@ -170,7 +170,7 @@ int main(void) {
     }
 
     float wheel_move = GetMouseWheelMove();
-    if (wheel_move != 0.0f) {
+    if (wheel_move != 0.0f && CheckCollisionPointRec(GetMousePosition(), text_box)) {
       scroll_speed += wheel_move / 150;
     }
 
