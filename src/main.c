@@ -81,6 +81,9 @@ int main(void) {
     .y = reset_btn_rect.y + (BTNHEIGHT/2.0) - (reset_btn_text_size.y/2.0)
   };
 
+  float scroll_location = 1.0f;
+  float scroll_speed = 0.0f;
+
   SetTextLineSpacing(FONTSIZE);
 
   size_t reveal_statement_num = 0;
@@ -88,6 +91,13 @@ int main(void) {
   adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
 
   while (!WindowShouldClose()) {
+    scroll_location += scroll_speed;
+    if (scroll_location < 0.0) {
+      scroll_location = 0.0;
+    } else if (scroll_location > 1.0f) {
+      scroll_location = 1.0f;
+    }
+    scroll_speed *= 0.9;
     if (IsWindowResized()) {
       window_width = GetScreenWidth();
       window_height = GetScreenHeight();
@@ -126,6 +136,7 @@ int main(void) {
           reveal_statement_num += 1;
           get_qanda_string(qanda, string_to_print, reveal_statement_num);
           adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+          scroll_location = 1.0;
         }
       }
 
@@ -134,6 +145,7 @@ int main(void) {
           reveal_statement_num -= 1;
           get_qanda_string(qanda, string_to_print, reveal_statement_num);
           adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+          scroll_location = 1.0;
         }
       }
 
@@ -141,6 +153,7 @@ int main(void) {
         reveal_statement_num = 0;
         get_qanda_string(qanda, string_to_print, reveal_statement_num);
         adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+        scroll_location = 1.0;
       }
     }
 
@@ -151,9 +164,14 @@ int main(void) {
     scroll_bar_rect.x += 2;
     scroll_bar_rect.width -= 4;
     if (text_size.y > text_box.height) {
-      adjusted_text_location.y -= PADDING + text_size.y - text_box.height;
+      adjusted_text_location.y -= scroll_location * (text_size.y - text_box.height);
       scroll_bar_rect.height *= text_box.height / text_size.y;
-      scroll_bar_rect.y = text_box.y + text_box.height - scroll_bar_rect.height;
+      scroll_bar_rect.y = text_box.y + scroll_location * (text_box.height - scroll_bar_rect.height);
+    }
+
+    float wheel_move = GetMouseWheelMove();
+    if (wheel_move != 0.0f) {
+      scroll_speed += wheel_move / 150;
     }
 
     BeginDrawing();
