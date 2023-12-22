@@ -1,7 +1,7 @@
 CC = clang
 CFLAGS = -Wall -Wpedantic -Wextra -Werror -ggdb -std=c18
 CINCLUDES = -I./includes/raylib/src
-CLIBS = -L./includes/raylib/src -lm -lraylib
+CLIBS = -L./includes/raylib/src -lm -lraylib -lgcrypt
 
 SRC = src
 OBJ = obj

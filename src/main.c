@@ -1,3 +1,4 @@
+#include <gcrypt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,11 +27,105 @@
 #define BACK_BTN_TEXT  "Back"
 #define RESET_BTN_TEXT "Reset"
 
+#define GCRY_CIPHER GCRY_CIPHER_AES256
+#define GCRY_MODE GCRY_CIPHER_MODE_CBC
+
+#define KEY_LENGTH 32 // 256 bits
+#define IV_LENGTH 16  // 128 bits
+
+void handle_error(const char *msg) {
+    fprintf(stderr, "Error: %s\n", msg);
+    exit(EXIT_FAILURE);
+}
+
+char *decrypt_file(const char *input_filename, const char *password) {
+    gcry_cipher_hd_t handle;
+    gcry_error_t err;
+
+    FILE *input_file = fopen(input_filename, "rb");
+    if (!input_file) {
+        handle_error("Failed to open input file");
+    }
+
+    // Read the IV from the beginning of the encrypted file
+    unsigned char iv[IV_LENGTH];
+    fread(iv, 1, IV_LENGTH, input_file);
+
+    // Derive the key from the password using a key derivation function (KDF)
+    unsigned char key[KEY_LENGTH];
+    err = gcry_kdf_derive(password, strlen(password), GCRY_KDF_PBKDF2, GCRY_MD_SHA256, "salt", 4, 4096, KEY_LENGTH, key);
+    if (err) {
+        handle_error("Key derivation failed");
+    }
+
+    // Initialize the cipher handle
+    err = gcry_cipher_open(&handle, GCRY_CIPHER, GCRY_MODE, 0);
+    if (err) {
+        handle_error("Cipher initialization failed");
+    }
+
+    // Set the key for the cipher handle
+    err = gcry_cipher_setkey(handle, key, KEY_LENGTH);
+    if (err) {
+        gcry_cipher_close(handle);
+        handle_error("Failed to set cipher key");
+    }
+
+    // Set the IV for the cipher handle
+    err = gcry_cipher_setiv(handle, iv, IV_LENGTH);
+    if (err) {
+        gcry_cipher_close(handle);
+        handle_error("Failed to set cipher IV");
+    }
+
+    // Decrypt the file content block by block
+    size_t block_size = gcry_cipher_get_algo_blklen(GCRY_CIPHER);
+    char *buffer = malloc(block_size);
+
+    size_t capacity = 32*block_size;
+    char *output_buffer = calloc(capacity, sizeof(char));
+
+    while (1) {
+        size_t bytes_read = fread(buffer, 1, block_size, input_file);
+        if (bytes_read == 0) {
+            break; // End of file
+        }
+
+        // Decrypt the block
+        err = gcry_cipher_decrypt(handle, buffer, block_size, NULL, 0);
+        if (err) {
+            free(buffer);
+            gcry_cipher_close(handle);
+            fclose(input_file);
+            handle_error("Decryption failed");
+        }
+
+        // Concatenate the decrypted block onto the end of the output_buffer
+        if (strlen(output_buffer) + strlen(buffer) > capacity) {
+          capacity *= 2;
+          output_buffer = realloc(output_buffer, capacity*sizeof(char));
+        }
+        strcat(output_buffer, buffer);
+    }
+
+    free(buffer);
+    gcry_cipher_close(handle);
+    fclose(input_file);
+
+    while (output_buffer[strlen(output_buffer)-1] == '\r') {
+      output_buffer[strlen(output_buffer)-1] = '\0';
+    }
+
+    return output_buffer;
+}
+
+
 int main(void) {
-  char* catechism_file = "./fake_catechism.txt";
-  char *buffer;
+  // char* catechism_file = "./fake_catechism.txt";
+  char* encrypted_file = "./output.enc";
+  char *buffer = decrypt_file(encrypted_file, "12345");
   char **lines;
-  size_t num_lines = read_entire_file_to_lines(catechism_file, &buffer, &lines);
+  size_t num_lines = string_to_lines(&buffer, &lines);
 
   QandA qanda = empty_qanda();
   parse_lines_to_qanda(&qanda, lines, num_lines);
@@ -94,6 +189,10 @@ int main(void) {
   Vector2 text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
 
   while (!WindowShouldClose()) {
+    Color next_btn_colour = LIGHTGRAY;
+    Color back_btn_colour = LIGHTGRAY;
+    Color reset_btn_colour = LIGHTGRAY;
+
     scroll_location += scroll_speed;
     if (scroll_location < 0.0) {
       scroll_location = 0.0;
@@ -131,10 +230,31 @@ int main(void) {
       adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
     }
 
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-      Vector2 click_pos = GetMousePosition();
+    Vector2 mouse_pos = GetMousePosition();
+    if (CheckCollisionPointRec(mouse_pos, next_btn_rect)) {
+      next_btn_colour = WHITE;
+    }
+    if (CheckCollisionPointRec(mouse_pos, back_btn_rect)) {
+      back_btn_colour = WHITE;
+    }
+    if (CheckCollisionPointRec(mouse_pos, reset_btn_rect)) {
+      reset_btn_colour = WHITE;
+    }
 
-      if (CheckCollisionPointRec(click_pos, next_btn_rect)) {
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+      if (CheckCollisionPointRec(mouse_pos, next_btn_rect)) {
+        next_btn_colour = GRAY;
+      }
+      if (CheckCollisionPointRec(mouse_pos, back_btn_rect)) {
+        back_btn_colour = GRAY;
+      }
+      if (CheckCollisionPointRec(mouse_pos, reset_btn_rect)) {
+        reset_btn_colour = GRAY;
+      }
+    }
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+      if (CheckCollisionPointRec(mouse_pos, next_btn_rect)) {
         if (reveal_statement_num < num_lines-1) {
           Vector2 last_size = text_size;
           reveal_statement_num += 1;
@@ -146,7 +266,7 @@ int main(void) {
         }
       }
 
-      if (CheckCollisionPointRec(click_pos, back_btn_rect)) {
+      if (CheckCollisionPointRec(mouse_pos, back_btn_rect)) {
         if (reveal_statement_num > 0) {
           reveal_statement_num -= 1;
           get_qanda_string(qanda, string_to_print, reveal_statement_num);
@@ -156,7 +276,7 @@ int main(void) {
         }
       }
 
-      if (CheckCollisionPointRec(click_pos, reset_btn_rect)) {
+      if (CheckCollisionPointRec(mouse_pos, reset_btn_rect)) {
         reveal_statement_num = 0;
         get_qanda_string(qanda, string_to_print, reveal_statement_num);
         adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
@@ -164,7 +284,6 @@ int main(void) {
         scroll_location = 1.0;
       }
     }
-
 
     Vector2 adjusted_text_location = main_text_location;
     Rectangle scroll_bar_rect = scroll_bar_area_rect;
@@ -193,13 +312,13 @@ int main(void) {
       DrawRectangleRec(scroll_bar_area_rect, DARKGRAY);
       DrawRectangleRec(scroll_bar_rect, LIGHTGRAY);
 
-      DrawRectangleRounded(next_btn_rect, 0.4, 4, LIGHTGRAY);
+      DrawRectangleRounded(next_btn_rect, 0.4, 4, next_btn_colour);
       DrawTextEx(font, NEXT_BTN_TEXT, next_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
 
-      DrawRectangleRounded(back_btn_rect, 0.4, 4, LIGHTGRAY);
+      DrawRectangleRounded(back_btn_rect, 0.4, 4, back_btn_colour);
       DrawTextEx(font, BACK_BTN_TEXT, back_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
 
-      DrawRectangleRounded(reset_btn_rect, 0.4, 4, LIGHTGRAY);
+      DrawRectangleRounded(reset_btn_rect, 0.4, 4, reset_btn_colour);
       DrawTextEx(font, RESET_BTN_TEXT, reset_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
 
     EndDrawing();
