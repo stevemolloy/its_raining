@@ -171,7 +171,7 @@ int main(void) {
 
     float wheel_move = GetMouseWheelMove();
     if (wheel_move != 0.0f && CheckCollisionPointRec(GetMousePosition(), text_box)) {
-      scroll_speed += wheel_move / 150;
+      scroll_speed -= wheel_move / 150;
     }
 
     BeginDrawing();
@@ -179,7 +179,6 @@ int main(void) {
 
       DrawTextEx(font, qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
 
-      // DrawRectangleRoundedLines(text_box, 0.02, 7, 2, LIGHTGRAY);
       BeginScissorMode(text_box.x, text_box.y, text_box.width, text_box.height);
         DrawTextEx(font, string_to_print, adjusted_text_location, FONTSIZE, 0, LIGHTGRAY);
       EndScissorMode();
