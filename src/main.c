@@ -36,7 +36,7 @@
 #define IV_LENGTH 16  // 128 bits
 
 void handle_error(const char *msg) {
-    fprintf(stderr, "Error: %s\n", msg);
+    fprintf(stderr, "ERROR: %s\n", msg);
     exit(EXIT_FAILURE);
 }
 
@@ -90,10 +90,11 @@ char *decrypt_file(const char *input_filename, const char *password) {
 
     // Decrypt the file content block by block
     size_t block_size = gcry_cipher_get_algo_blklen(GCRY_CIPHER);
-    char *buffer = malloc(block_size);
+    unsigned char *buffer = malloc(block_size);
+    size_t decrypted_capacity = block_size; // Initial capacity
+    size_t decrypted_size = 0;              // Actual size
 
-    size_t capacity = 32*block_size;
-    char *output_buffer = calloc(capacity, sizeof(char));
+    char *decrypted_data = malloc(decrypted_capacity + 1); // +1 for null terminator
 
     while (1) {
         size_t bytes_read = fread(buffer, 1, block_size, input_file);
@@ -105,37 +106,50 @@ char *decrypt_file(const char *input_filename, const char *password) {
         err = gcry_cipher_decrypt(handle, buffer, block_size, NULL, 0);
         if (err) {
             free(buffer);
+            free(decrypted_data);
             gcry_cipher_close(handle);
             fclose(input_file);
             handle_error("Decryption failed");
         }
 
-        // Concatenate the decrypted block onto the end of the output_buffer
-        if (strlen(output_buffer) + strlen(buffer) > capacity) {
-          capacity *= 2;
-          output_buffer = realloc(output_buffer, capacity*sizeof(char));
+        // Resize the buffer if needed
+        while (decrypted_size + bytes_read > decrypted_capacity) {
+            decrypted_capacity *= 2;
+            decrypted_data = realloc(decrypted_data, decrypted_capacity + 1); // +1 for null terminator
         }
-        strcat(output_buffer, buffer);
+
+        // Append the decrypted block to the result
+        memcpy(decrypted_data + decrypted_size, buffer, bytes_read);
+        decrypted_size += bytes_read;
     }
 
     free(buffer);
     gcry_cipher_close(handle);
     fclose(input_file);
 
-    while (output_buffer[strlen(output_buffer)-1] == '\r') {
-      output_buffer[strlen(output_buffer)-1] = '\0';
+    // Resize the final result to the actual size
+    decrypted_data = realloc(decrypted_data, decrypted_size + 1); // +1 for null terminator
+
+    // Null-terminate the string
+    decrypted_data[decrypted_size] = '\0';
+
+    while (decrypted_data[strlen(decrypted_data)-1] == '\r') {
+      decrypted_data[strlen(decrypted_data)-1] = '\0';
     }
 
-    return output_buffer;
+    return decrypted_data;
 }
 
 // TODO: The routine should not need the file to be given as input. It should be optional
 int main(int argc, char **argv) {
-  if (argc != 2) {
-    fprintf(stderr, "Please provide the file to use\n");
-    exit(1);
+  if (argc > 2) {
+    handle_error("Too many command line inputs");
   }
-  char *file_path = argv[1];
+
+  char *file_path = NULL;
+  if (argc == 2) {
+    file_path = argv[1];
+  }
 
   InitWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "It's raining...");
 
@@ -192,27 +206,26 @@ int main(int argc, char **argv) {
   char **lines = NULL;
   (void)lines;
 
-  // char* file_path = "./fake_catechism.txt";
-  // char* file_path = "./output.enc";
-  if (is_file_encrypted(file_path)) {
-    TraceLog(LOG_INFO, "File *is* encrypted.");
-    buffer = decrypt_file(file_path, "12345");
-  } else {
-    TraceLog(LOG_INFO, "File is *not* encrypted.");
-    buffer = read_entire_file(file_path);
+  if (file_path != NULL) {
+    if (is_file_encrypted(file_path)) {
+      TraceLog(LOG_INFO, "Decrypting %s", file_path);
+      buffer = decrypt_file(file_path, "12345");
+    } else {
+      TraceLog(LOG_INFO, "Loading %s", file_path);
+      buffer = read_entire_file(file_path);
+    }
+    num_lines = string_to_lines(&buffer, &lines);
+
+    parse_lines_to_qanda(&qanda, lines, num_lines);
+
+    string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
+    if (string_to_print==NULL) {
+      handle_error("Unable to allocate memory. Stopping execution");
+    }
+
+    get_qanda_string(qanda, string_to_print, reveal_statement_num);
+    adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
   }
-  num_lines = string_to_lines(&buffer, &lines);
-
-  parse_lines_to_qanda(&qanda, lines, num_lines);
-
-  string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
-  if (string_to_print==NULL) {
-    fprintf(stderr, "Unable to allocate memory. Stopping execution\n");
-    exit(1);
-  }
-
-  get_qanda_string(qanda, string_to_print, reveal_statement_num);
-  adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
 
   Vector2 text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
 
@@ -220,30 +233,42 @@ int main(int argc, char **argv) {
     if (IsFileDropped()) {
       FilePathList files = LoadDroppedFiles();
       assert(files.count > 0 && "Dropping files should never result in zero files on the drop list, right?");
-      if (is_file_encrypted(files.paths[0])) {
-        // TODO: This should ask for a password
-        TraceLog(LOG_INFO, "File is encrypted, so ignoring: %s", files.paths[0]);
 
+      file_path = files.paths[0];
+
+      if (is_file_encrypted(file_path)) {
         free(buffer);
         buffer = NULL;
-        buffer = decrypt_file(files.paths[0], "12345");
-
         free(lines);
         lines = NULL;
-        num_lines = string_to_lines(&buffer, &lines);
+        if (string_to_print != NULL) {
+          free(string_to_print);
+          string_to_print = NULL;
+        }
 
+        // TODO: This should ask for a password
+        buffer = decrypt_file(file_path, "12345");
+        num_lines = string_to_lines(&buffer, &lines);
         parse_lines_to_qanda(&qanda, lines, num_lines);
-        TraceLog(LOG_INFO, "Loading a dropped file: %s", files.paths[0]);
+
+        string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
+
         reveal_statement_num = 0;
         get_qanda_string(qanda, string_to_print, reveal_statement_num);
         adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
         text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
         scroll_location = 1.0;
       } else {
-        buffer = read_entire_file(files.paths[0]);
+        if (string_to_print != NULL) {
+          free(string_to_print);
+          string_to_print = NULL;
+        }
+        buffer = read_entire_file(file_path);
         num_lines = string_to_lines(&buffer, &lines);
         parse_lines_to_qanda(&qanda, lines, num_lines);
-        TraceLog(LOG_INFO, "Loading a dropped file: %s", files.paths[0]);
+
+        string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
+
         reveal_statement_num = 0;
         get_qanda_string(qanda, string_to_print, reveal_statement_num);
         adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
@@ -289,8 +314,10 @@ int main(int argc, char **argv) {
       reset_btn_text_location.x = reset_btn_rect.x + (BTNWIDTH/2.0)-(reset_btn_text_size.x/2.0);
       reset_btn_text_location.y = reset_btn_rect.y + (BTNHEIGHT/2.0) - (reset_btn_text_size.y/2.0);
 
-      get_qanda_string(qanda, string_to_print, reveal_statement_num);
-      adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+      if (file_path != NULL) {
+        get_qanda_string(qanda, string_to_print, reveal_statement_num);
+        adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+      }
     }
 
     Vector2 mouse_pos = GetMousePosition();
@@ -368,7 +395,7 @@ int main(int argc, char **argv) {
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
 
-      if (string_to_print != NULL) {
+      if (file_path != NULL) {
         DrawTextEx(font, qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
 
         BeginScissorMode(text_box.x, text_box.y, text_box.width, text_box.height);
