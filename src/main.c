@@ -221,6 +221,22 @@ int main(int argc, char **argv) {
       assert(files.count > 0 && "Dropping files should never result in zero files on the drop list, right?");
       if (is_file_encrypted(files.paths[0])) {
         TraceLog(LOG_INFO, "File is encrypted, so ignoring: %s", files.paths[0]);
+
+        free(buffer);
+        buffer = NULL;
+        buffer = decrypt_file(files.paths[0], "12345");
+
+        free(lines);
+        lines = NULL;
+        num_lines = string_to_lines(&buffer, &lines);
+
+        parse_lines_to_qanda(&qanda, lines, num_lines);
+        TraceLog(LOG_INFO, "Loading a dropped file: %s", files.paths[0]);
+        reveal_statement_num = 0;
+        get_qanda_string(qanda, string_to_print, reveal_statement_num);
+        adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+        text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
+        scroll_location = 1.0;
       } else {
         buffer = read_entire_file(files.paths[0]);
         num_lines = string_to_lines(&buffer, &lines);
