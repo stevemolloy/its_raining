@@ -127,7 +127,6 @@ char *decrypt_file(const char *input_filename, const char *password) {
     return output_buffer;
 }
 
-
 int main(void) {
   InitWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "It's raining...");
 
