@@ -129,6 +129,7 @@ char *decrypt_file(const char *input_filename, const char *password) {
     return output_buffer;
 }
 
+// TODO: The routine should not need the file to be given as input. It should be optional
 int main(int argc, char **argv) {
   if (argc != 2) {
     fprintf(stderr, "Please provide the file to use\n");
@@ -220,6 +221,7 @@ int main(int argc, char **argv) {
       FilePathList files = LoadDroppedFiles();
       assert(files.count > 0 && "Dropping files should never result in zero files on the drop list, right?");
       if (is_file_encrypted(files.paths[0])) {
+        // TODO: This should ask for a password
         TraceLog(LOG_INFO, "File is encrypted, so ignoring: %s", files.paths[0]);
 
         free(buffer);
