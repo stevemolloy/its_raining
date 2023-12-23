@@ -38,6 +38,14 @@ void handle_error(const char *msg) {
     exit(EXIT_FAILURE);
 }
 
+bool is_file_encrypted(char *filepath) {
+  unsigned char *contents = (unsigned char *)read_entire_file(filepath);
+  while (*contents) {
+    if (*(contents)++ > 127) return true;
+  }
+  return false;
+}
+
 char *decrypt_file(const char *input_filename, const char *password) {
     gcry_cipher_hd_t handle;
     gcry_error_t err;
@@ -121,21 +129,6 @@ char *decrypt_file(const char *input_filename, const char *password) {
 
 
 int main(void) {
-  // char* catechism_file = "./fake_catechism.txt";
-  char* encrypted_file = "./output.enc";
-  char *buffer = decrypt_file(encrypted_file, "12345");
-  char **lines;
-  size_t num_lines = string_to_lines(&buffer, &lines);
-
-  QandA qanda = empty_qanda();
-  parse_lines_to_qanda(&qanda, lines, num_lines);
-
-  char* string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
-  if (string_to_print==NULL) {
-    fprintf(stderr, "Unable to allocate memory. Stopping execution\n");
-    exit(1);
-  }
-
   InitWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "It's raining...");
 
   int monitor_number = GetCurrentMonitor();
@@ -182,7 +175,34 @@ int main(void) {
 
   SetTextLineSpacing(FONTSIZE);
 
+  QandA qanda = empty_qanda();
   size_t reveal_statement_num = 0;
+  char* string_to_print = NULL;
+  size_t num_lines = 0;
+  char *buffer = NULL;
+  (void)buffer;
+  char **lines = NULL;
+  (void)lines;
+
+  // char* file_path = "./fake_catechism.txt";
+  char* file_path = "./output.enc";
+  if (is_file_encrypted(file_path)) {
+    TraceLog(LOG_INFO, "File *is* encrypted.");
+    buffer = decrypt_file(file_path, "12345");
+  } else {
+    TraceLog(LOG_INFO, "File is *not* encrypted.");
+    buffer = read_entire_file(file_path);
+  }
+  num_lines = string_to_lines(&buffer, &lines);
+
+  parse_lines_to_qanda(&qanda, lines, num_lines);
+
+  string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
+  if (string_to_print==NULL) {
+    fprintf(stderr, "Unable to allocate memory. Stopping execution\n");
+    exit(1);
+  }
+
   get_qanda_string(qanda, string_to_print, reveal_statement_num);
   adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
 
@@ -253,35 +273,37 @@ int main(void) {
       }
     }
 
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-      if (CheckCollisionPointRec(mouse_pos, next_btn_rect)) {
-        if (reveal_statement_num < num_lines-1) {
-          Vector2 last_size = text_size;
-          reveal_statement_num += 1;
-          get_qanda_string(qanda, string_to_print, reveal_statement_num);
-          adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
-          text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
-          scroll_location = last_size.y / text_size.y;
-          scroll_speed = 10 / text_size.y;
+    if (num_lines > 0) {
+      if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        if (CheckCollisionPointRec(mouse_pos, next_btn_rect)) {
+          if (reveal_statement_num < num_lines-1) {
+            Vector2 last_size = text_size;
+            reveal_statement_num += 1;
+            get_qanda_string(qanda, string_to_print, reveal_statement_num);
+            adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+            text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
+            scroll_location = last_size.y / text_size.y;
+            scroll_speed = 10 / text_size.y;
+          }
         }
-      }
 
-      if (CheckCollisionPointRec(mouse_pos, back_btn_rect)) {
-        if (reveal_statement_num > 0) {
-          reveal_statement_num -= 1;
+        if (CheckCollisionPointRec(mouse_pos, back_btn_rect)) {
+          if (reveal_statement_num > 0) {
+            reveal_statement_num -= 1;
+            get_qanda_string(qanda, string_to_print, reveal_statement_num);
+            adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+            text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
+            scroll_location = 1.0;
+          }
+        }
+
+        if (CheckCollisionPointRec(mouse_pos, reset_btn_rect)) {
+          reveal_statement_num = 0;
           get_qanda_string(qanda, string_to_print, reveal_statement_num);
           adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
           text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
           scroll_location = 1.0;
         }
-      }
-
-      if (CheckCollisionPointRec(mouse_pos, reset_btn_rect)) {
-        reveal_statement_num = 0;
-        get_qanda_string(qanda, string_to_print, reveal_statement_num);
-        adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
-        text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
-        scroll_location = 1.0;
       }
     }
 
@@ -303,31 +325,38 @@ int main(void) {
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
 
-      DrawTextEx(font, qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
+      if (string_to_print != NULL) {
+        DrawTextEx(font, qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
 
-      BeginScissorMode(text_box.x, text_box.y, text_box.width, text_box.height);
-        DrawTextEx(font, string_to_print, adjusted_text_location, FONTSIZE, 0, LIGHTGRAY);
-      EndScissorMode();
+        BeginScissorMode(text_box.x, text_box.y, text_box.width, text_box.height);
+          DrawTextEx(font, string_to_print, adjusted_text_location, FONTSIZE, 0, LIGHTGRAY);
+        EndScissorMode();
 
-      DrawRectangleRec(scroll_bar_area_rect, DARKGRAY);
-      DrawRectangleRec(scroll_bar_rect, LIGHTGRAY);
+        DrawRectangleRec(scroll_bar_area_rect, DARKGRAY);
+        DrawRectangleRec(scroll_bar_rect, LIGHTGRAY);
 
-      DrawRectangleRounded(next_btn_rect, 0.4, 4, next_btn_colour);
-      DrawTextEx(font, NEXT_BTN_TEXT, next_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
+        DrawRectangleRounded(next_btn_rect, 0.4, 4, next_btn_colour);
+        DrawTextEx(font, NEXT_BTN_TEXT, next_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
 
-      DrawRectangleRounded(back_btn_rect, 0.4, 4, back_btn_colour);
-      DrawTextEx(font, BACK_BTN_TEXT, back_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
+        DrawRectangleRounded(back_btn_rect, 0.4, 4, back_btn_colour);
+        DrawTextEx(font, BACK_BTN_TEXT, back_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
 
-      DrawRectangleRounded(reset_btn_rect, 0.4, 4, reset_btn_colour);
-      DrawTextEx(font, RESET_BTN_TEXT, reset_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
+        DrawRectangleRounded(reset_btn_rect, 0.4, 4, reset_btn_colour);
+        DrawTextEx(font, RESET_BTN_TEXT, reset_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
+      } else {
+        char *prompt_text = "Drag and drop the input file here";
+        Vector2 prompt_size = MeasureTextEx(font, prompt_text, FONTSIZE, 0);
+        Vector2 prompt_loc = {.x = window_width/2.0 - prompt_size.x/2.0, .y = window_height/2.0 - prompt_size.y/2.0};
+        DrawTextEx(font, prompt_text, prompt_loc, FONTSIZE, 0, LIGHTGRAY);
+      }
 
     EndDrawing();
   }
 
-  free(string_to_print);
+  if (string_to_print != NULL) free(string_to_print);
   free_qanda(&qanda);
-  free(buffer);
-  free(lines);
+  if (buffer != NULL) free(buffer);
+  if (lines != NULL) free(lines);
 
   return 0;
 }

@@ -119,6 +119,7 @@ void free_qanda(QandA *qanda) {
 }
 
 void get_qanda_string(QandA qanda, char *str, size_t statement_num) {
+  if (statement_num == 0) return;
   strcpy(str, "\0");
   for (size_t i=0; i<statement_num; i++) {
     strcat(str, qanda.statements[i]);
