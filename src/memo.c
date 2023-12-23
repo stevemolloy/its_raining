@@ -99,6 +99,7 @@ void expand_qanda(QandA *qanda) {
 
 void parse_lines_to_qanda(QandA *qanda, char **lines, size_t num_lines) {
   qanda->title = lines[0];
+  qanda->length = 0;
   for (size_t i=1; i<num_lines; i++) {
     if (strlen(lines[i]) == 0) {
       continue;
@@ -119,8 +120,10 @@ void free_qanda(QandA *qanda) {
 }
 
 void get_qanda_string(QandA qanda, char *str, size_t statement_num) {
-  if (statement_num == 0) return;
   strcpy(str, "\0");
+  if (statement_num == 0) {
+    return;
+  }
   for (size_t i=0; i<statement_num; i++) {
     strcat(str, qanda.statements[i]);
     if (i != statement_num-1) strcat(str, "\n\n");

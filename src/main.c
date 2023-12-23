@@ -1,9 +1,11 @@
+#include <assert.h>
 #include <gcrypt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <raylib.h>
 #include <string.h>
+#include <sys/types.h>
 
 #include "memo.h"
 
@@ -127,7 +129,13 @@ char *decrypt_file(const char *input_filename, const char *password) {
     return output_buffer;
 }
 
-int main(void) {
+int main(int argc, char **argv) {
+  if (argc != 2) {
+    fprintf(stderr, "Please provide the file to use\n");
+    exit(1);
+  }
+  char *file_path = argv[1];
+
   InitWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "It's raining...");
 
   int monitor_number = GetCurrentMonitor();
@@ -184,7 +192,7 @@ int main(void) {
   (void)lines;
 
   // char* file_path = "./fake_catechism.txt";
-  char* file_path = "./output.enc";
+  // char* file_path = "./output.enc";
   if (is_file_encrypted(file_path)) {
     TraceLog(LOG_INFO, "File *is* encrypted.");
     buffer = decrypt_file(file_path, "12345");
@@ -208,6 +216,24 @@ int main(void) {
   Vector2 text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
 
   while (!WindowShouldClose()) {
+    if (IsFileDropped()) {
+      FilePathList files = LoadDroppedFiles();
+      assert(files.count > 0 && "Dropping files should never result in zero files on the drop list, right?");
+      if (is_file_encrypted(files.paths[0])) {
+        TraceLog(LOG_INFO, "File is encrypted, so ignoring: %s", files.paths[0]);
+      } else {
+        buffer = read_entire_file(files.paths[0]);
+        num_lines = string_to_lines(&buffer, &lines);
+        parse_lines_to_qanda(&qanda, lines, num_lines);
+        TraceLog(LOG_INFO, "Loading a dropped file: %s", files.paths[0]);
+        reveal_statement_num = 0;
+        get_qanda_string(qanda, string_to_print, reveal_statement_num);
+        adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+        text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
+        scroll_location = 1.0;
+      }
+      UnloadDroppedFiles(files);
+    }
     Color next_btn_colour = LIGHTGRAY;
     Color back_btn_colour = LIGHTGRAY;
     Color reset_btn_colour = LIGHTGRAY;
