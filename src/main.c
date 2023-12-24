@@ -133,8 +133,10 @@ char *decrypt_file(const char *input_filename, const char *password) {
     // Null-terminate the string
     decrypted_data[decrypted_size] = '\0';
 
-    while (decrypted_data[strlen(decrypted_data)-1] == '\r') {
+    char last_char = decrypted_data[strlen(decrypted_data)-1];
+    while (last_char == '\r' || last_char == '\v' || last_char == '\t' || last_char == '\a' || last_char == '\b' || last_char == '\f') {
       decrypted_data[strlen(decrypted_data)-1] = '\0';
+      last_char = decrypted_data[strlen(decrypted_data)-1];
     }
 
     return decrypted_data;
