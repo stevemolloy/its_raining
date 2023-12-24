@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <gcrypt.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,129 +30,45 @@
 #define BACK_BTN_TEXT  "Back"
 #define RESET_BTN_TEXT "Reset"
 
-#define GCRY_CIPHER GCRY_CIPHER_AES256
-#define GCRY_MODE GCRY_CIPHER_MODE_CBC
+#define MAX_PASSWD_CHARS 12
 
-#define KEY_LENGTH 32 // 256 bits
-#define IV_LENGTH 16  // 128 bits
+typedef enum {
+  WAITING_FOR_FILE,
+  GOT_FILE,
+  WAITING_FOR_PASSWD,
+  CHECKING_PASSWD,
+  DISPLAYING_FILE,
+} StateName;
 
-void handle_error(const char *msg) {
-    fprintf(stderr, "ERROR: %s\n", msg);
-    exit(EXIT_FAILURE);
-}
+typedef struct {
+  StateName state;
+  char *file_path;
+  char *buffer;
+  char **lines;
+  size_t reveal_statement_num;
+  char* string_to_print;
+  size_t num_lines;
+  QandA qanda;
+  char passwd[MAX_PASSWD_CHARS + 1];
+  char lettercount;
+  float scroll_location;
+  float scroll_speed;
+} AppState;
 
-bool is_file_encrypted(char *filepath) {
-  unsigned char *contents = (unsigned char *)read_entire_file(filepath);
-  while (*contents) {
-    if (*(contents)++ > 127) return true;
-  }
-  return false;
-}
-
-char *decrypt_file(const char *input_filename, const char *password) {
-    gcry_cipher_hd_t handle;
-    gcry_error_t err;
-
-    FILE *input_file = fopen(input_filename, "rb");
-    if (!input_file) {
-        handle_error("Failed to open input file");
-    }
-
-    // Read the IV from the beginning of the encrypted file
-    unsigned char iv[IV_LENGTH];
-    fread(iv, 1, IV_LENGTH, input_file);
-
-    // Derive the key from the password using a key derivation function (KDF)
-    unsigned char key[KEY_LENGTH];
-    err = gcry_kdf_derive(password, strlen(password), GCRY_KDF_PBKDF2, GCRY_MD_SHA256, "salt", 4, 4096, KEY_LENGTH, key);
-    if (err) {
-        handle_error("Key derivation failed");
-    }
-
-    // Initialize the cipher handle
-    err = gcry_cipher_open(&handle, GCRY_CIPHER, GCRY_MODE, 0);
-    if (err) {
-        handle_error("Cipher initialization failed");
-    }
-
-    // Set the key for the cipher handle
-    err = gcry_cipher_setkey(handle, key, KEY_LENGTH);
-    if (err) {
-        gcry_cipher_close(handle);
-        handle_error("Failed to set cipher key");
-    }
-
-    // Set the IV for the cipher handle
-    err = gcry_cipher_setiv(handle, iv, IV_LENGTH);
-    if (err) {
-        gcry_cipher_close(handle);
-        handle_error("Failed to set cipher IV");
-    }
-
-    // Decrypt the file content block by block
-    size_t block_size = gcry_cipher_get_algo_blklen(GCRY_CIPHER);
-    unsigned char *buffer = malloc(block_size);
-    size_t decrypted_capacity = block_size; // Initial capacity
-    size_t decrypted_size = 0;              // Actual size
-
-    char *decrypted_data = malloc(decrypted_capacity + 1); // +1 for null terminator
-
-    while (1) {
-        size_t bytes_read = fread(buffer, 1, block_size, input_file);
-        if (bytes_read == 0) {
-            break; // End of file
-        }
-
-        // Decrypt the block
-        err = gcry_cipher_decrypt(handle, buffer, block_size, NULL, 0);
-        if (err) {
-            free(buffer);
-            free(decrypted_data);
-            gcry_cipher_close(handle);
-            fclose(input_file);
-            handle_error("Decryption failed");
-        }
-
-        // Resize the buffer if needed
-        while (decrypted_size + bytes_read > decrypted_capacity) {
-            decrypted_capacity *= 2;
-            decrypted_data = realloc(decrypted_data, decrypted_capacity + 1); // +1 for null terminator
-        }
-
-        // Append the decrypted block to the result
-        memcpy(decrypted_data + decrypted_size, buffer, bytes_read);
-        decrypted_size += bytes_read;
-    }
-
-    free(buffer);
-    gcry_cipher_close(handle);
-    fclose(input_file);
-
-    // Resize the final result to the actual size
-    decrypted_data = realloc(decrypted_data, decrypted_size + 1); // +1 for null terminator
-
-    // Null-terminate the string
-    decrypted_data[decrypted_size] = '\0';
-
-    char last_char = decrypted_data[strlen(decrypted_data)-1];
-    while (last_char == '\r' || last_char == '\v' || last_char == '\t' || last_char == '\a' || last_char == '\b' || last_char == '\f') {
-      decrypted_data[strlen(decrypted_data)-1] = '\0';
-      last_char = decrypted_data[strlen(decrypted_data)-1];
-    }
-
-    return decrypted_data;
-}
-
-// TODO: The routine should not need the file to be given as input. It should be optional
-int main(int argc, char **argv) {
-  if (argc > 2) {
-    handle_error("Too many command line inputs");
-  }
-
-  char *file_path = NULL;
-  if (argc == 2) {
-    file_path = argv[1];
-  }
+int main(void) {
+  AppState state             = {0};
+  state.state                = WAITING_FOR_FILE;
+  state.file_path            = NULL;
+  state.buffer               = NULL;
+  state.lines                = NULL;
+  state.reveal_statement_num = 0;
+  state.string_to_print      = NULL;
+  state.num_lines            = 0;
+  state.qanda                = empty_qanda();
+  state.passwd[0]            = '\0';
+  state.lettercount          = 0;
+  state.scroll_location      = 1.0;
+  state.scroll_speed         = 0.0;
 
   InitWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "It's raining...");
 
@@ -199,46 +116,77 @@ int main(int argc, char **argv) {
 
   SetTextLineSpacing(FONTSIZE);
 
-  QandA qanda = empty_qanda();
-  size_t reveal_statement_num = 0;
-  char* string_to_print = NULL;
-  size_t num_lines = 0;
-  char *buffer = NULL;
-  (void)buffer;
-  char **lines = NULL;
-  (void)lines;
+  // if (state.file_path != NULL) {
+  //   if (is_file_encrypted(file_path)) {
+  //     password_needed = true;
+  //     TraceLog(LOG_INFO, "Decrypting %s", file_path);
+  //     buffer = decrypt_file(file_path, "12345");
+  //   } else {
+  //     password_needed = false;
+  //     TraceLog(LOG_INFO, "Loading %s", file_path);
+  //     buffer = read_entire_file(file_path);
+  //   }
+  //   num_lines = string_to_lines(&buffer, &lines);
+  //
+  //   parse_lines_to_qanda(&qanda, lines, num_lines);
+  //
+  //   string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
+  //   if (string_to_print==NULL) {
+  //     handle_error("Unable to allocate memory. Stopping execution");
+  //   }
+  //
+  //   get_qanda_string(qanda, string_to_print, reveal_statement_num);
+  //   adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+  // }
 
-  if (file_path != NULL) {
-    if (is_file_encrypted(file_path)) {
-      TraceLog(LOG_INFO, "Decrypting %s", file_path);
-      buffer = decrypt_file(file_path, "12345");
-    } else {
-      TraceLog(LOG_INFO, "Loading %s", file_path);
-      buffer = read_entire_file(file_path);
-    }
-    num_lines = string_to_lines(&buffer, &lines);
+  Vector2 text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
 
-    parse_lines_to_qanda(&qanda, lines, num_lines);
-
-    string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
-    if (string_to_print==NULL) {
-      handle_error("Unable to allocate memory. Stopping execution");
-    }
-
-    get_qanda_string(qanda, string_to_print, reveal_statement_num);
-    adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
-  }
-
-  Vector2 text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
+  char passwd[MAX_PASSWD_CHARS + 1] = "\0";
+  int lettercount = 0;
 
   while (!WindowShouldClose()) {
     if (IsFileDropped()) {
       FilePathList files = LoadDroppedFiles();
       assert(files.count > 0 && "Dropping files should never result in zero files on the drop list, right?");
 
-      file_path = files.paths[0];
+      state.file_path = calloc(strlen(files.paths[0])+1, sizeof(char));
+      strcpy(state.file_path, files.paths[0]);
+      state.state = GOT_FILE;
 
+      UnloadDroppedFiles(files);
+    }
+
+    if (state.state == GOT_FILE) {
+      if (is_file_encrypted(state.file_path)) {
+        state.state = WAITING_FOR_PASSWD;
+      } else {
+        if (state.string_to_print != NULL) {
+          free(state.string_to_print);
+          state.string_to_print = NULL;
+        }
+        state.buffer = read_entire_file(state.file_path);
+        state.num_lines = string_to_lines(&state.buffer, &state.lines);
+        parse_lines_to_qanda(&state.qanda, state.lines, state.num_lines);
+
+        state.string_to_print = calloc(space_estimate_for_qanda(state.qanda), sizeof(char));
+
+        state.reveal_statement_num = 0;
+        get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
+        adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
+        text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
+        state.scroll_location = 1.0;
+        state.state = DISPLAYING_FILE;
+      }
+    }
+/* 
+    if (0) {
+      FilePathList files = LoadDroppedFiles();
+      assert(files.count > 0 && "Dropping files should never result in zero files on the drop list, right?");
+      file_path = files.paths[0];
       if (is_file_encrypted(file_path)) {
+        password_needed = true;
+        passwd[0] = '\0';
+        lettercount = 0;
         free(buffer);
         buffer = NULL;
         free(lines);
@@ -247,12 +195,10 @@ int main(int argc, char **argv) {
           free(string_to_print);
           string_to_print = NULL;
         }
-
         // TODO: This should ask for a password
         buffer = decrypt_file(file_path, "12345");
         num_lines = string_to_lines(&buffer, &lines);
         parse_lines_to_qanda(&qanda, lines, num_lines);
-
         string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
 
         reveal_statement_num = 0;
@@ -261,6 +207,7 @@ int main(int argc, char **argv) {
         text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
         scroll_location = 1.0;
       } else {
+        password_needed = false;
         if (string_to_print != NULL) {
           free(string_to_print);
           string_to_print = NULL;
@@ -278,7 +225,7 @@ int main(int argc, char **argv) {
         scroll_location = 1.0;
       }
       UnloadDroppedFiles(files);
-    }
+    } */
     Color next_btn_colour = LIGHTGRAY;
     Color back_btn_colour = LIGHTGRAY;
     Color reset_btn_colour = LIGHTGRAY;
@@ -316,9 +263,9 @@ int main(int argc, char **argv) {
       reset_btn_text_location.x = reset_btn_rect.x + (BTNWIDTH/2.0)-(reset_btn_text_size.x/2.0);
       reset_btn_text_location.y = reset_btn_rect.y + (BTNHEIGHT/2.0) - (reset_btn_text_size.y/2.0);
 
-      if (file_path != NULL) {
-        get_qanda_string(qanda, string_to_print, reveal_statement_num);
-        adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
+      if (state.state == DISPLAYING_FILE) {
+        get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
+        adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
       }
     }
 
@@ -345,35 +292,35 @@ int main(int argc, char **argv) {
       }
     }
 
-    if (num_lines > 0) {
+    if (state.state == DISPLAYING_FILE) {
       if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         if (CheckCollisionPointRec(mouse_pos, next_btn_rect)) {
-          if (reveal_statement_num < num_lines-1) {
+          if (state.reveal_statement_num < state.num_lines-1) {
             Vector2 last_size = text_size;
-            reveal_statement_num += 1;
-            get_qanda_string(qanda, string_to_print, reveal_statement_num);
-            adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
-            text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
+            state.reveal_statement_num += 1;
+            get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
+            adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
+            text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
             scroll_location = last_size.y / text_size.y;
             scroll_speed = 10 / text_size.y;
           }
         }
 
         if (CheckCollisionPointRec(mouse_pos, back_btn_rect)) {
-          if (reveal_statement_num > 0) {
-            reveal_statement_num -= 1;
-            get_qanda_string(qanda, string_to_print, reveal_statement_num);
-            adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
-            text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
+          if (state.reveal_statement_num > 0) {
+            state.reveal_statement_num -= 1;
+            get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
+            adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
+            text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
             scroll_location = 1.0;
           }
         }
 
         if (CheckCollisionPointRec(mouse_pos, reset_btn_rect)) {
-          reveal_statement_num = 0;
-          get_qanda_string(qanda, string_to_print, reveal_statement_num);
-          adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
-          text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
+          state.reveal_statement_num = 0;
+          get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
+          adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
+          text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
           scroll_location = 1.0;
         }
       }
@@ -397,11 +344,67 @@ int main(int argc, char **argv) {
     BeginDrawing();
       ClearBackground(BACKGROUND_COLOUR);
 
-      if (file_path != NULL) {
-        DrawTextEx(font, qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
+      if (state.state == WAITING_FOR_PASSWD) {
+        char *prompt_text = "Please enter the password to decrypt this file";
+        Vector2 prompt_size = MeasureTextEx(font, prompt_text, FONTSIZE, 0);
+        Vector2 prompt_loc = {.x = window_width/2.0 - prompt_size.x/2.0, .y = window_height/2.0 - 3.0*prompt_size.y/2.0};
+        DrawTextEx(font, prompt_text, prompt_loc, FONTSIZE, 0, LIGHTGRAY);
+
+        Rectangle textBox = {.x=prompt_loc.x, .y=prompt_loc.y+10+prompt_size.y, .width=prompt_size.x, .height=prompt_size.y};
+        DrawRectangleRec(textBox, LIGHTGRAY);
+
+        int key = GetCharPressed();
+        // Check if more characters have been pressed on the same frame
+        while (key > 0) {
+            // NOTE: Only allow keys in range [32..125]
+            if ((key >= 32) && (key <= 125) && (lettercount < MAX_PASSWD_CHARS)) {
+                passwd[lettercount] = (char)key;
+                passwd[lettercount+1] = '\0'; // Add null terminator at the end of the string.
+                lettercount++;
+            }
+            key = GetCharPressed();  // Check next character in the queue
+        }
+
+        if (IsKeyPressed(KEY_BACKSPACE)) {
+            lettercount--;
+            if (lettercount < 0) lettercount = 0;
+            passwd[lettercount] = '\0';
+        }
+
+        if (IsKeyPressed(KEY_ENTER)) {
+          TraceLog(LOG_INFO, "Entering the 'CHECKING_PASSWD' state");
+          state.state = CHECKING_PASSWD;
+        }
+        float spacing = 2;
+        Vector2 passwd_text_size = MeasureTextEx(font, passwd, FONTSIZE, spacing);
+        DrawTextEx(font, passwd, (Vector2){.x=window_width/2.0 - passwd_text_size.x/2.0, .y=textBox.y}, FONTSIZE, spacing, BACKGROUND_COLOUR);
+      } else if (state.state == CHECKING_PASSWD) {
+        free(state.buffer);
+        state.buffer = NULL;
+        free(state.lines);
+        state.lines = NULL;
+        if (state.string_to_print != NULL) {
+          free(state.string_to_print);
+          state.string_to_print = NULL;
+        }
+        // TODO: This should ask for a password
+        state.buffer = decrypt_file(state.file_path, passwd);
+        state.num_lines = string_to_lines(&state.buffer, &state.lines);
+        parse_lines_to_qanda(&state.qanda, state.lines, state.num_lines);
+        state.string_to_print = calloc(space_estimate_for_qanda(state.qanda), sizeof(char));
+
+        state.reveal_statement_num = 0;
+        get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
+        adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
+        text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
+        scroll_location = 1.0;
+        state.state = DISPLAYING_FILE;
+
+      } else if (state.state == DISPLAYING_FILE) {
+        DrawTextEx(font, state.qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
 
         BeginScissorMode(text_box.x, text_box.y, text_box.width, text_box.height);
-          DrawTextEx(font, string_to_print, adjusted_text_location, FONTSIZE, 0, LIGHTGRAY);
+          DrawTextEx(font, state.string_to_print, adjusted_text_location, FONTSIZE, 0, LIGHTGRAY);
         EndScissorMode();
 
         DrawRectangleRec(scroll_bar_area_rect, DARKGRAY);
@@ -425,10 +428,10 @@ int main(int argc, char **argv) {
     EndDrawing();
   }
 
-  if (string_to_print != NULL) free(string_to_print);
-  free_qanda(&qanda);
-  if (buffer != NULL) free(buffer);
-  if (lines != NULL) free(lines);
+  if (state.string_to_print != NULL) free(state.string_to_print);
+  free_qanda(&state.qanda);
+  if (state.buffer != NULL) free(state.buffer);
+  if (state.lines != NULL) free(state.lines);
 
   return 0;
 }

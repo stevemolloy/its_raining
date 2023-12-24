@@ -1,9 +1,124 @@
-#include "raylib.h"
-#define INITIAL_QA_COUNT 64
 #include <assert.h>
 #include <errno.h>
+#include <gcrypt.h>
 
+#include "raylib.h"
 #include "memo.h"
+
+#define INITIAL_QA_COUNT 64
+
+#define GCRY_CIPHER GCRY_CIPHER_AES256
+#define GCRY_MODE GCRY_CIPHER_MODE_CBC
+
+#define KEY_LENGTH 32 // 256 bits
+#define IV_LENGTH 16  // 128 bits
+
+void handle_error(const char *msg) {
+    fprintf(stderr, "ERROR: %s\n", msg);
+    exit(EXIT_FAILURE);
+}
+
+bool is_file_encrypted(char *filepath) {
+  unsigned char *contents = (unsigned char *)read_entire_file(filepath);
+  while (*contents) {
+    if (*(contents)++ > 127) return true;
+  }
+  return false;
+}
+
+char *decrypt_file(const char *input_filename, const char *password) {
+    gcry_cipher_hd_t handle;
+    gcry_error_t err;
+
+    FILE *input_file = fopen(input_filename, "rb");
+    if (!input_file) {
+        handle_error("Failed to open input file");
+    }
+
+    // Read the IV from the beginning of the encrypted file
+    unsigned char iv[IV_LENGTH];
+    fread(iv, 1, IV_LENGTH, input_file);
+
+    // Derive the key from the password using a key derivation function (KDF)
+    unsigned char key[KEY_LENGTH];
+    err = gcry_kdf_derive(password, strlen(password), GCRY_KDF_PBKDF2, GCRY_MD_SHA256, "salt", 4, 4096, KEY_LENGTH, key);
+    if (err) {
+        handle_error("Key derivation failed");
+    }
+
+    // Initialize the cipher handle
+    err = gcry_cipher_open(&handle, GCRY_CIPHER, GCRY_MODE, 0);
+    if (err) {
+        handle_error("Cipher initialization failed");
+    }
+
+    // Set the key for the cipher handle
+    err = gcry_cipher_setkey(handle, key, KEY_LENGTH);
+    if (err) {
+        gcry_cipher_close(handle);
+        handle_error("Failed to set cipher key");
+    }
+
+    // Set the IV for the cipher handle
+    err = gcry_cipher_setiv(handle, iv, IV_LENGTH);
+    if (err) {
+        gcry_cipher_close(handle);
+        handle_error("Failed to set cipher IV");
+    }
+
+    // Decrypt the file content block by block
+    size_t block_size = gcry_cipher_get_algo_blklen(GCRY_CIPHER);
+    unsigned char *buffer = malloc(block_size);
+    size_t decrypted_capacity = block_size; // Initial capacity
+    size_t decrypted_size = 0;              // Actual size
+
+    char *decrypted_data = malloc(decrypted_capacity + 1); // +1 for null terminator
+
+    while (1) {
+        size_t bytes_read = fread(buffer, 1, block_size, input_file);
+        if (bytes_read == 0) {
+            break; // End of file
+        }
+
+        // Decrypt the block
+        err = gcry_cipher_decrypt(handle, buffer, block_size, NULL, 0);
+        if (err) {
+            free(buffer);
+            free(decrypted_data);
+            gcry_cipher_close(handle);
+            fclose(input_file);
+            handle_error("Decryption failed");
+        }
+
+        // Resize the buffer if needed
+        while (decrypted_size + bytes_read > decrypted_capacity) {
+            decrypted_capacity *= 2;
+            decrypted_data = realloc(decrypted_data, decrypted_capacity + 1); // +1 for null terminator
+        }
+
+        // Append the decrypted block to the result
+        memcpy(decrypted_data + decrypted_size, buffer, bytes_read);
+        decrypted_size += bytes_read;
+    }
+
+    free(buffer);
+    gcry_cipher_close(handle);
+    fclose(input_file);
+
+    // Resize the final result to the actual size
+    decrypted_data = realloc(decrypted_data, decrypted_size + 1); // +1 for null terminator
+
+    // Null-terminate the string
+    decrypted_data[decrypted_size] = '\0';
+
+    char last_char = decrypted_data[strlen(decrypted_data)-1];
+    while (last_char == '\r' || last_char == '\v' || last_char == '\t' || last_char == '\a' || last_char == '\b' || last_char == '\f') {
+      decrypted_data[strlen(decrypted_data)-1] = '\0';
+      last_char = decrypted_data[strlen(decrypted_data)-1];
+    }
+
+    return decrypted_data;
+}
 
 size_t read_entire_file_to_lines(char *file_path, char **buffer, char ***lines) {
   *buffer = read_entire_file(file_path);

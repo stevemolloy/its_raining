@@ -1,6 +1,12 @@
 #ifndef _MEMO_H
 #define _MEMO_H
 
+#define GCRY_CIPHER GCRY_CIPHER_AES256
+#define GCRY_MODE GCRY_CIPHER_MODE_CBC
+
+#define KEY_LENGTH 32 // 256 bits
+#define IV_LENGTH 16  // 128 bits
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +19,12 @@ typedef struct {
   size_t capacity;
   char **statements;
 } QandA;
+
+void handle_error(const char *msg);
+
+bool is_file_encrypted(char *filepath);
+
+char *decrypt_file(const char *input_filename, const char *password);
 
 QandA empty_qanda(void);
 
