@@ -1,10 +1,3 @@
----
-title: It's raining...
-author: Stephen Molloy
-date: \today
-geometry: margin=2.0cm
----
-
 # Introduction
 This introduces an app whose purpose is to help people learn a catechism and/or a ceremonial text.
 
