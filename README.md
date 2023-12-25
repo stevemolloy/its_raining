@@ -7,22 +7,22 @@ The basic idea is that the user would use the app to step through the text, lear
 
 On loading the app, the user is greeted with a screen, shown below, asking them to drag and drop a text file containing the document they wish to learn.  More details about the required formatting of this document can be found below.
 
-![Welcome screen](./Images/welcome_screen.png "Welcome screen"){width=65%}
+![Welcome screen](./Images/welcome_screen.png "Welcome screen")
 
 Dragging and dropping such a file onto the window leads to the screen shown in figure 2. Note that this screen is shown for a catechism imagined by ChatGPT for a purely fictional religion.
 
-![After loading a document](./Images/initial_screen_after_loading.png "After first loading"){width=65%}
+![After loading a document](./Images/initial_screen_after_loading.png "After first loading")
 
 The user then steps through the text using the "Next" and "Back" buttons, and may restart at the beginning of the text with the "Reset" button.
 
-![Working with a text](./Images/scrollable_screen.png "Stepping through the text"){width=65%}
+![Working with a text](./Images/scrollable_screen.png "Stepping through the text")
 
 # Protection of secrets
 It is often the case that texts that users wish to learn are private or secret, perhaps due to vows made to a lodge.  For this reason this application allows for the decryption of specially encrypted documents.
 
 The encryption used in this application is AES-256, and is considered state of the art.
 
-![Password-based decryption of a text](./Images/password_request.png "Providing a password"){width=65%}
+![Password-based decryption of a text](./Images/password_request.png "Providing a password")
 
 Entering the wrong password will return the user to the password screen.
 
