@@ -30,32 +30,6 @@
 #define BACK_BTN_TEXT  "Back"
 #define RESET_BTN_TEXT "Reset"
 
-#define MAX_PASSWD_CHARS 12
-
-typedef enum {
-  WAITING_FOR_FILE,
-  GOT_FILE,
-  WAITING_FOR_PASSWD,
-  CHECKING_PASSWD,
-  BUILDING_FILE,
-  DISPLAYING_FILE,
-} StateName;
-
-typedef struct {
-  StateName state;
-  char *file_path;
-  char *buffer;
-  char **lines;
-  size_t reveal_statement_num;
-  char* string_to_print;
-  size_t num_lines;
-  QandA qanda;
-  char passwd[MAX_PASSWD_CHARS + 1];
-  float scroll_location;
-  float scroll_speed;
-  char *prompt_text;
-} AppState;
-
 int main(void) {
   AppState state             = {0};
   state.state                = WAITING_FOR_FILE;
@@ -66,10 +40,13 @@ int main(void) {
   state.string_to_print      = NULL;
   state.num_lines            = 0;
   state.qanda                = empty_qanda();
-  state.passwd[0]            = '\0';
   state.scroll_location      = 1.0;
   state.scroll_speed         = 0.0;
   state.prompt_text          = "Enter password to decrypt this file.";
+
+  PasswordDetails passwd_details = {0};
+  passwd_details.passwd[0]   = '\0';
+  passwd_details.lettercount = 0;
 
   InitWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "It's raining...");
 
@@ -117,32 +94,7 @@ int main(void) {
 
   SetTextLineSpacing(FONTSIZE);
 
-  // if (state.file_path != NULL) {
-  //   if (is_file_encrypted(file_path)) {
-  //     password_needed = true;
-  //     TraceLog(LOG_INFO, "Decrypting %s", file_path);
-  //     buffer = decrypt_file(file_path, "12345");
-  //   } else {
-  //     password_needed = false;
-  //     TraceLog(LOG_INFO, "Loading %s", file_path);
-  //     buffer = read_entire_file(file_path);
-  //   }
-  //   num_lines = string_to_lines(&buffer, &lines);
-  //
-  //   parse_lines_to_qanda(&qanda, lines, num_lines);
-  //
-  //   string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
-  //   if (string_to_print==NULL) {
-  //     handle_error("Unable to allocate memory. Stopping execution");
-  //   }
-  //
-  //   get_qanda_string(qanda, string_to_print, reveal_statement_num);
-  //   adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
-  // }
-
   Vector2 text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
-
-  int lettercount = 0;
 
   while (!WindowShouldClose()) {
     if (IsFileDropped()) {
@@ -151,6 +103,7 @@ int main(void) {
 
       state.file_path = calloc(strlen(files.paths[0])+1, sizeof(char));
       strcpy(state.file_path, files.paths[0]);
+      TraceLog(LOG_INFO, "Received a file to open");
       state.state = GOT_FILE;
 
       UnloadDroppedFiles(files);
@@ -158,6 +111,7 @@ int main(void) {
 
     if (state.state == GOT_FILE) {
       if (is_file_encrypted(state.file_path)) {
+        TraceLog(LOG_INFO, "Waiting for the user to enter a password");
         state.state = WAITING_FOR_PASSWD;
       } else {
         if (state.string_to_print != NULL) {
@@ -175,6 +129,7 @@ int main(void) {
         adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
         text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
         state.scroll_location = 1.0;
+        TraceLog(LOG_INFO, "Displaying the file");
         state.state = DISPLAYING_FILE;
       }
     }
@@ -356,27 +311,27 @@ int main(void) {
         // Check if more characters have been pressed on the same frame
         while (key > 0) {
             // NOTE: Only allow keys in range [32..125]
-            if ((key >= 32) && (key <= 125) && (lettercount < MAX_PASSWD_CHARS)) {
-                state.passwd[lettercount] = (char)key;
-                state.passwd[lettercount+1] = '\0'; // Add null terminator at the end of the string.
-                lettercount++;
+            if ((key >= 32) && (key <= 125) && (passwd_details.lettercount < MAX_PASSWD_CHARS)) {
+                passwd_details.passwd[passwd_details.lettercount] = (char)key;
+                passwd_details.passwd[passwd_details.lettercount+1] = '\0'; // Add null terminator at the end of the string.
+                passwd_details.lettercount++;
             }
             key = GetCharPressed();  // Check next character in the queue
         }
 
         if (IsKeyPressed(KEY_BACKSPACE)) {
-            lettercount--;
-            if (lettercount < 0) lettercount = 0;
-            state.passwd[lettercount] = '\0';
+            passwd_details.lettercount--;
+            if (passwd_details.lettercount < 0) passwd_details.lettercount = 0;
+            passwd_details.passwd[passwd_details.lettercount] = '\0';
         }
 
         if (IsKeyPressed(KEY_ENTER)) {
-          TraceLog(LOG_INFO, "Entering the 'CHECKING_PASSWD' state");
+          TraceLog(LOG_INFO, "Checking the password");
           state.state = CHECKING_PASSWD;
         }
         float spacing = 2;
-        Vector2 passwd_text_size = MeasureTextEx(font, state.passwd, FONTSIZE, spacing);
-        DrawTextEx(font, state.passwd, (Vector2){.x=window_width/2.0 - passwd_text_size.x/2.0, .y=textBox.y}, FONTSIZE, spacing, BACKGROUND_COLOUR);
+        Vector2 passwd_text_size = MeasureTextEx(font, passwd_details.passwd, FONTSIZE, spacing);
+        DrawTextEx(font, passwd_details.passwd, (Vector2){.x=window_width/2.0 - passwd_text_size.x/2.0, .y=textBox.y}, FONTSIZE, spacing, BACKGROUND_COLOUR);
       } else if (state.state == CHECKING_PASSWD) {
         free(state.buffer);
         state.buffer = NULL;
@@ -387,7 +342,7 @@ int main(void) {
           state.string_to_print = NULL;
         }
         // TODO: This should ask for a password
-        state.buffer = decrypt_file(state.file_path, state.passwd);
+        state.buffer = decrypt_file(state.file_path, passwd_details.passwd);
         unsigned char *cursor = (unsigned char *)state.buffer;
         state.state = BUILDING_FILE;
         while (*cursor) {
@@ -395,13 +350,14 @@ int main(void) {
             TraceLog(LOG_INFO, "File not decrypted properly. Probably a wrong password.");
             state.state = WAITING_FOR_PASSWD;
             state.prompt_text = "Wrong password, please try again.";
-            state.passwd[0] = '\0';
-            lettercount = 0;
+            passwd_details.passwd[0] = '\0';
+            passwd_details.lettercount = 0;
             break;
           }
           cursor++;
         }
       } else if (state.state == BUILDING_FILE) {
+        TraceLog(LOG_INFO, "Building the UI contents for the user");
         state.num_lines = string_to_lines(&state.buffer, &state.lines);
         parse_lines_to_qanda(&state.qanda, state.lines, state.num_lines);
         state.string_to_print = calloc(space_estimate_for_qanda(state.qanda), sizeof(char));

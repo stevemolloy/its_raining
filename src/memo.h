@@ -1,17 +1,28 @@
 #ifndef _MEMO_H
 #define _MEMO_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <raylib.h>
+
 #define GCRY_CIPHER GCRY_CIPHER_AES256
 #define GCRY_MODE GCRY_CIPHER_MODE_CBC
 
 #define KEY_LENGTH 32 // 256 bits
 #define IV_LENGTH 16  // 128 bits
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <raylib.h>
+#define MAX_PASSWD_CHARS 12
+
+typedef enum {
+  WAITING_FOR_FILE,
+  GOT_FILE,
+  WAITING_FOR_PASSWD,
+  CHECKING_PASSWD,
+  BUILDING_FILE,
+  DISPLAYING_FILE,
+} StateName;
 
 typedef struct {
   char *title;
@@ -19,6 +30,25 @@ typedef struct {
   size_t capacity;
   char **statements;
 } QandA;
+
+typedef struct {
+  StateName state;
+  char *file_path;
+  char *buffer;
+  char **lines;
+  size_t reveal_statement_num;
+  char* string_to_print;
+  size_t num_lines;
+  QandA qanda;
+  float scroll_location;
+  float scroll_speed;
+  char *prompt_text;
+} AppState;
+
+typedef struct {
+  char passwd[MAX_PASSWD_CHARS + 1];
+  int lettercount;
+} PasswordDetails;
 
 void handle_error(const char *msg);
 
