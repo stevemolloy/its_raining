@@ -349,6 +349,14 @@ int main(void) {
         }
       } else if (state.state == BUILDING_FILE) {
         TraceLog(LOG_INFO, "Building the UI contents for the user");
+        // Get codepoints from text
+        int codepointCount = 0;
+        int *codepoints = LoadCodepoints(state.buffer, &codepointCount);
+        // Removed duplicate codepoints to generate smaller font atlas
+        int codepointsNoDupsCount = 0;
+        int *codepointsNoDups = CodepointRemoveDuplicates(codepoints, codepointCount, &codepointsNoDupsCount);
+        state.font = LoadFontEx("./fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, codepointsNoDups, codepointsNoDupsCount);
+        UnloadCodepoints(codepoints);
         state.num_lines = string_to_lines(&state.buffer, &state.lines);
         parse_lines_to_qanda(&state.qanda, state.lines, state.num_lines);
         state.string_to_print = calloc(space_estimate_for_qanda(state.qanda), sizeof(char));
