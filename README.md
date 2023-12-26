@@ -18,6 +18,9 @@ The user then steps through the text using the "Next" and "Back" buttons, and ma
 ![Working with a text](./Images/scrollable_screen.png "Stepping through the text")
 
 # Protection of secrets
+
+As stated above, the catechism files included in this repository were imagined by ChatGPT for a purely fictional relgion.  It will *never* be the case that genuine, non-imagined files will be stored here, nor will such information ever be included in the source code.  This repository is only for the storage and distribution of the source code and associated executables, and these executables are useless if the user is unable to provide suitable texts.
+
 It is often the case that texts that users wish to learn are private or secret, perhaps due to vows made to a lodge.  For this reason this application allows for the decryption of specially encrypted documents.
 
 The encryption used in this application is AES-256, and is considered state of the art.
