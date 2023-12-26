@@ -32,7 +32,8 @@ Entering the wrong password will return the user to the password screen.
 The correct password opens the document as for an unecrypted text (see figure 2).
 
 # Format of the input file
-The text file (either unencrypted or after decryption) is expected to follow a very simple format.
+
+The input file (either unencrypted or after decryption) should be encoded as UTF-8 and is expected to follow a very simple format.
 
 The first line provides the title of the document, such as the one shown in figure 2. The remainder of the file is then divided line-by-line to be served up to the user one at a time as they click through the text.
 
