@@ -43,6 +43,7 @@ typedef struct {
   float scroll_location;
   float scroll_speed;
   char *prompt_text;
+  Font font;
 } AppState;
 
 typedef struct {

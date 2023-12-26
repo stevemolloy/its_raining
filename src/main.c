@@ -30,6 +30,34 @@
 #define BACK_BTN_TEXT  "Back"
 #define RESET_BTN_TEXT "Reset"
 
+int *CodepointRemoveDuplicates(int *codepoints, int codepointCount, int *codepointsResultCount)
+{
+    int codepointsNoDupsCount = codepointCount;
+    int *codepointsNoDups = (int *)calloc(codepointCount, sizeof(int));
+    memcpy(codepointsNoDups, codepoints, codepointCount*sizeof(int));
+
+    // Remove duplicates
+    for (int i = 0; i < codepointsNoDupsCount; i++)
+    {
+        for (int j = i + 1; j < codepointsNoDupsCount; j++)
+        {
+            if (codepointsNoDups[i] == codepointsNoDups[j])
+            {
+                for (int k = j; k < codepointsNoDupsCount; k++) codepointsNoDups[k] = codepointsNoDups[k + 1];
+
+                codepointsNoDupsCount--;
+                j--;
+            }
+        }
+    }
+
+    // NOTE: The size of codepointsNoDups is the same as original array but
+    // only required positions are filled (codepointsNoDupsCount)
+
+    *codepointsResultCount = codepointsNoDupsCount;
+    return codepointsNoDups;
+}
+
 int main(void) {
   AppState state             = {0};
   state.state                = WAITING_FOR_FILE;
@@ -59,10 +87,12 @@ int main(void) {
 
   SetTargetFPS(60);
 
-  Font font = LoadFontEx("fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, NULL, 0);
-  Vector2 next_btn_text_size  = MeasureTextEx(font, NEXT_BTN_TEXT, FONTSIZE, 0);
-  Vector2 back_btn_text_size  = MeasureTextEx(font, BACK_BTN_TEXT, FONTSIZE, 0);
-  Vector2 reset_btn_text_size = MeasureTextEx(font, RESET_BTN_TEXT, FONTSIZE, 0);
+  state.font = LoadFontEx("fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, NULL, 0);
+  Font ui_font = LoadFontEx("fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, NULL, 0);
+
+  Vector2 next_btn_text_size  = MeasureTextEx(ui_font, NEXT_BTN_TEXT, FONTSIZE, 0);
+  Vector2 back_btn_text_size  = MeasureTextEx(ui_font, BACK_BTN_TEXT, FONTSIZE, 0);
+  Vector2 reset_btn_text_size = MeasureTextEx(ui_font, RESET_BTN_TEXT, FONTSIZE, 0);
 
   int usable_width = window_width - 2*PADDING - SCROLLBARWIDTH;;
   int controls_y = window_height - CONTROLSHEIGHT - PADDING;
@@ -94,7 +124,7 @@ int main(void) {
 
   SetTextLineSpacing(FONTSIZE);
 
-  Vector2 text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
+  Vector2 text_size = MeasureTextEx(state.font, state.string_to_print, FONTSIZE, 0);
 
   while (!WindowShouldClose()) {
     if (IsFileDropped()) {
@@ -119,6 +149,15 @@ int main(void) {
           state.string_to_print = NULL;
         }
         state.buffer = read_entire_file(state.file_path);
+        // Get codepoints from text
+        int codepointCount = 0;
+        int *codepoints = LoadCodepoints(state.buffer, &codepointCount);
+
+        // Removed duplicate codepoints to generate smaller font atlas
+        int codepointsNoDupsCount = 0;
+        int *codepointsNoDups = CodepointRemoveDuplicates(codepoints, codepointCount, &codepointsNoDupsCount);
+        state.font = LoadFontEx("./fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, codepointsNoDups, codepointsNoDupsCount);
+        UnloadCodepoints(codepoints);
         state.num_lines = string_to_lines(&state.buffer, &state.lines);
         parse_lines_to_qanda(&state.qanda, state.lines, state.num_lines);
 
@@ -126,61 +165,13 @@ int main(void) {
 
         state.reveal_statement_num = 0;
         get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
-        adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
-        text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
+        adjust_string_for_width(state.string_to_print, usable_width, state.font, FONTSIZE);
+        text_size = MeasureTextEx(state.font, state.string_to_print, FONTSIZE, 0);
         state.scroll_location = 1.0;
         TraceLog(LOG_INFO, "Displaying the file");
         state.state = DISPLAYING_FILE;
       }
     }
-/* 
-    if (0) {
-      FilePathList files = LoadDroppedFiles();
-      assert(files.count > 0 && "Dropping files should never result in zero files on the drop list, right?");
-      file_path = files.paths[0];
-      if (is_file_encrypted(file_path)) {
-        password_needed = true;
-        passwd[0] = '\0';
-        lettercount = 0;
-        free(buffer);
-        buffer = NULL;
-        free(lines);
-        lines = NULL;
-        if (string_to_print != NULL) {
-          free(string_to_print);
-          string_to_print = NULL;
-        }
-        // TODO: This should ask for a password
-        buffer = decrypt_file(file_path, "12345");
-        num_lines = string_to_lines(&buffer, &lines);
-        parse_lines_to_qanda(&qanda, lines, num_lines);
-        string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
-
-        reveal_statement_num = 0;
-        get_qanda_string(qanda, string_to_print, reveal_statement_num);
-        adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
-        text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
-        scroll_location = 1.0;
-      } else {
-        password_needed = false;
-        if (string_to_print != NULL) {
-          free(string_to_print);
-          string_to_print = NULL;
-        }
-        buffer = read_entire_file(file_path);
-        num_lines = string_to_lines(&buffer, &lines);
-        parse_lines_to_qanda(&qanda, lines, num_lines);
-
-        string_to_print = calloc(space_estimate_for_qanda(qanda), sizeof(char));
-
-        reveal_statement_num = 0;
-        get_qanda_string(qanda, string_to_print, reveal_statement_num);
-        adjust_string_for_width(string_to_print, usable_width, font, FONTSIZE);
-        text_size = MeasureTextEx(font, string_to_print, FONTSIZE, 0);
-        scroll_location = 1.0;
-      }
-      UnloadDroppedFiles(files);
-    } */
     Color next_btn_colour = LIGHTGRAY;
     Color back_btn_colour = LIGHTGRAY;
     Color reset_btn_colour = LIGHTGRAY;
@@ -220,7 +211,7 @@ int main(void) {
 
       if (state.state == DISPLAYING_FILE) {
         get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
-        adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
+        adjust_string_for_width(state.string_to_print, usable_width, state.font, FONTSIZE);
       }
     }
 
@@ -254,8 +245,8 @@ int main(void) {
             Vector2 last_size = text_size;
             state.reveal_statement_num += 1;
             get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
-            adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
-            text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
+            adjust_string_for_width(state.string_to_print, usable_width, state.font, FONTSIZE);
+            text_size = MeasureTextEx(state.font, state.string_to_print, FONTSIZE, 0);
             scroll_location = last_size.y / text_size.y;
             scroll_speed = 10 / text_size.y;
           }
@@ -265,8 +256,8 @@ int main(void) {
           if (state.reveal_statement_num > 0) {
             state.reveal_statement_num -= 1;
             get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
-            adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
-            text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
+            adjust_string_for_width(state.string_to_print, usable_width, state.font, FONTSIZE);
+            text_size = MeasureTextEx(state.font, state.string_to_print, FONTSIZE, 0);
             scroll_location = 1.0;
           }
         }
@@ -274,8 +265,8 @@ int main(void) {
         if (CheckCollisionPointRec(mouse_pos, reset_btn_rect)) {
           state.reveal_statement_num = 0;
           get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
-          adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
-          text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
+          adjust_string_for_width(state.string_to_print, usable_width, state.font, FONTSIZE);
+          text_size = MeasureTextEx(state.font, state.string_to_print, FONTSIZE, 0);
           scroll_location = 1.0;
         }
       }
@@ -300,9 +291,9 @@ int main(void) {
       ClearBackground(BACKGROUND_COLOUR);
 
       if (state.state == WAITING_FOR_PASSWD) {
-        Vector2 prompt_size = MeasureTextEx(font, state.prompt_text, FONTSIZE, 0);
+        Vector2 prompt_size = MeasureTextEx(state.font, state.prompt_text, FONTSIZE, 0);
         Vector2 prompt_loc = {.x = window_width/2.0 - prompt_size.x/2.0, .y = window_height/2.0 - 3.0*prompt_size.y/2.0};
-        DrawTextEx(font, state.prompt_text, prompt_loc, FONTSIZE, 0, LIGHTGRAY);
+        DrawTextEx(ui_font, state.prompt_text, prompt_loc, FONTSIZE, 0, LIGHTGRAY);
 
         Rectangle textBox = {.x=prompt_loc.x, .y=prompt_loc.y+10+prompt_size.y, .width=prompt_size.x, .height=prompt_size.y};
         DrawRectangleRec(textBox, LIGHTGRAY);
@@ -330,8 +321,8 @@ int main(void) {
           state.state = CHECKING_PASSWD;
         }
         float spacing = 2;
-        Vector2 passwd_text_size = MeasureTextEx(font, passwd_details.passwd, FONTSIZE, spacing);
-        DrawTextEx(font, passwd_details.passwd, (Vector2){.x=window_width/2.0 - passwd_text_size.x/2.0, .y=textBox.y}, FONTSIZE, spacing, BACKGROUND_COLOUR);
+        Vector2 passwd_text_size = MeasureTextEx(state.font, passwd_details.passwd, FONTSIZE, spacing);
+        DrawTextEx(ui_font, passwd_details.passwd, (Vector2){.x=window_width/2.0 - passwd_text_size.x/2.0, .y=textBox.y}, FONTSIZE, spacing, BACKGROUND_COLOUR);
       } else if (state.state == CHECKING_PASSWD) {
         free(state.buffer);
         state.buffer = NULL;
@@ -364,34 +355,36 @@ int main(void) {
 
         state.reveal_statement_num = 0;
         get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
-        adjust_string_for_width(state.string_to_print, usable_width, font, FONTSIZE);
-        text_size = MeasureTextEx(font, state.string_to_print, FONTSIZE, 0);
+        adjust_string_for_width(state.string_to_print, usable_width, state.font, FONTSIZE);
+        text_size = MeasureTextEx(state.font, state.string_to_print, FONTSIZE, 0);
         scroll_location = 1.0;
         state.state = DISPLAYING_FILE;
 
       } else if (state.state == DISPLAYING_FILE) {
-        DrawTextEx(font, state.qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
+        DrawTextEx(state.font, state.qanda.title, title_location, FONTSIZE, 0, LIGHTGRAY);
 
         BeginScissorMode(text_box.x, text_box.y, text_box.width, text_box.height);
-          DrawTextEx(font, state.string_to_print, adjusted_text_location, FONTSIZE, 0, LIGHTGRAY);
+          // char *utf8_repr = LoadUTF8(state.string_to_print, strlen(state.string_to_print));
+          DrawTextEx(state.font, state.string_to_print, adjusted_text_location, FONTSIZE, 0, LIGHTGRAY);
+          // DrawTextEx(state.font, utf8_repr, adjusted_text_location, FONTSIZE, 0, LIGHTGRAY);
         EndScissorMode();
 
         DrawRectangleRec(scroll_bar_area_rect, DARKGRAY);
         DrawRectangleRec(scroll_bar_rect, LIGHTGRAY);
 
         DrawRectangleRounded(next_btn_rect, 0.4, 4, next_btn_colour);
-        DrawTextEx(font, NEXT_BTN_TEXT, next_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
+        DrawTextEx(ui_font, NEXT_BTN_TEXT, next_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
 
         DrawRectangleRounded(back_btn_rect, 0.4, 4, back_btn_colour);
-        DrawTextEx(font, BACK_BTN_TEXT, back_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
+        DrawTextEx(ui_font, BACK_BTN_TEXT, back_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
 
         DrawRectangleRounded(reset_btn_rect, 0.4, 4, reset_btn_colour);
-        DrawTextEx(font, RESET_BTN_TEXT, reset_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
+        DrawTextEx(ui_font, RESET_BTN_TEXT, reset_btn_text_location, FONTSIZE, 0, BACKGROUND_COLOUR);
       } else {
         char *prompt_text = "Drag and drop the input file here";
-        Vector2 prompt_size = MeasureTextEx(font, prompt_text, FONTSIZE, 0);
+        Vector2 prompt_size = MeasureTextEx(state.font, prompt_text, FONTSIZE, 0);
         Vector2 prompt_loc = {.x = window_width/2.0 - prompt_size.x/2.0, .y = window_height/2.0 - prompt_size.y/2.0};
-        DrawTextEx(font, prompt_text, prompt_loc, FONTSIZE, 0, LIGHTGRAY);
+        DrawTextEx(ui_font, prompt_text, prompt_loc, FONTSIZE, 0, LIGHTGRAY);
       }
 
     EndDrawing();
