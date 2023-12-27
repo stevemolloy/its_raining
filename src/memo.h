@@ -53,6 +53,8 @@ typedef struct {
 
 void handle_error(const char *msg);
 
+bool is_utf8(const char * string);
+
 bool is_file_encrypted(char *filepath);
 
 char *decrypt_file(const char *input_filename, const char *password);

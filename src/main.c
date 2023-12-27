@@ -334,18 +334,12 @@ int main(void) {
         }
         // TODO: This should ask for a password
         state.buffer = decrypt_file(state.file_path, passwd_details.passwd);
-        unsigned char *cursor = (unsigned char *)state.buffer;
+        
         state.state = BUILDING_FILE;
-        while (*cursor) {
-          if (*cursor > 127) {
-            TraceLog(LOG_INFO, "File not decrypted properly. Probably a wrong password.");
-            state.state = WAITING_FOR_PASSWD;
-            state.prompt_text = "Wrong password, please try again.";
-            passwd_details.passwd[0] = '\0';
-            passwd_details.lettercount = 0;
-            break;
-          }
-          cursor++;
+        if (is_utf8(state.buffer)) {
+          state.state = BUILDING_FILE;
+        } else {
+          state.state = WAITING_FOR_PASSWD;
         }
       } else if (state.state == BUILDING_FILE) {
         TraceLog(LOG_INFO, "Building the UI contents for the user");
