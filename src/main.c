@@ -44,6 +44,8 @@ int main(void) {
   state.scroll_speed         = 0.0;
   state.prompt_text          = "Enter password to decrypt this file.";
 
+  char dummy_password[MAX_PASSWD_CHARS+1] = "\0";
+
   PasswordDetails passwd_details = {0};
   passwd_details.passwd[0]   = '\0';
   passwd_details.lettercount = 0;
@@ -275,9 +277,11 @@ int main(void) {
         while (key > 0) {
             // NOTE: Only allow keys in range [32..125]
             if ((key >= 32) && (key <= 125) && (passwd_details.lettercount < MAX_PASSWD_CHARS)) {
-                passwd_details.passwd[passwd_details.lettercount] = (char)key;
-                passwd_details.passwd[passwd_details.lettercount+1] = '\0'; // Add null terminator at the end of the string.
-                passwd_details.lettercount++;
+              dummy_password[passwd_details.lettercount]   = '*';
+              dummy_password[passwd_details.lettercount+1] = '\0';
+              passwd_details.passwd[passwd_details.lettercount]   = (char)key;
+              passwd_details.passwd[passwd_details.lettercount+1] = '\0'; // Add null terminator at the end of the string.
+              passwd_details.lettercount++;
             }
             key = GetCharPressed();  // Check next character in the queue
         }
@@ -294,7 +298,7 @@ int main(void) {
         }
         float spacing = 2;
         Vector2 passwd_text_size = MeasureTextEx(state.font, passwd_details.passwd, FONTSIZE, spacing);
-        DrawTextEx(ui_font, passwd_details.passwd, (Vector2){.x=window_width/2.0 - passwd_text_size.x/2.0, .y=textBox.y}, FONTSIZE, spacing, BACKGROUND_COLOUR);
+        DrawTextEx(ui_font, dummy_password, (Vector2){.x=window_width/2.0 - passwd_text_size.x/2.0, .y=textBox.y+textBox.height/4.0}, FONTSIZE, spacing, BACKGROUND_COLOUR);
       } else if (state.state == CHECKING_PASSWD) {
         free(state.buffer);
         state.buffer = NULL;
