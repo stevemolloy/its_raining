@@ -364,8 +364,8 @@ void adjust_string_for_width(char *orig_str, float usable_width, Font font, floa
 
   for (size_t i=0; i<strlen(orig_str); i++) {
     if (orig_str[i] == '\n') {
-      if (num_chars - i > 4 && orig_str[i+1] == '\n' && (orig_str[i+2] == 'Q' || orig_str[i+2] == 'A') && orig_str[i+3] == ':') {
-        i += 3;
+      if (num_chars - i > 1 && orig_str[i+1] == '\n') {
+        i += 1;
         continue;
       }
       orig_str[i] = ' ';
