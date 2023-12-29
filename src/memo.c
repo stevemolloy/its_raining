@@ -46,12 +46,10 @@ int *CodepointRemoveDuplicates(int *codepoints, int codepointCount, int *codepoi
 }
 
 bool is_utf8(const char * string) {
-    if(!string)
-        return 0;
+    if(!string) return 0;
 
     const unsigned char * bytes = (const unsigned char *)string;
-    while(*bytes)
-    {
+    while(*bytes) {
         if( (// ASCII
              // use bytes[0] <= 0x7F to allow ASCII control characters
                 bytes[0] == 0x09 ||
@@ -214,12 +212,15 @@ char *decrypt_file(const char *input_filename, const char *password) {
     // Null-terminate the string
     decrypted_data[decrypted_size] = '\0';
 
+    bool end_was_fixed = false;
     char last_char = decrypted_data[strlen(decrypted_data)-1];
-    while (last_char == '\r' || last_char == '\v' || last_char == '\t' || last_char == '\a' || last_char == '\b' || last_char == '\f') {
+    while (last_char < 32) {
       decrypted_data[strlen(decrypted_data)-1] = '\0';
       last_char = decrypted_data[strlen(decrypted_data)-1];
+      end_was_fixed = true;
     }
 
+    if (end_was_fixed) decrypted_data[strlen(decrypted_data)] = '\n';
     return decrypted_data;
 }
 
