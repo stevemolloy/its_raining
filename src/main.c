@@ -214,36 +214,37 @@ int main(void) {
     }
 
     if (state.state == DISPLAYING_FILE) {
-      if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        if (CheckCollisionPointRec(mouse_pos, next_btn_rect)) {
-          if (state.reveal_statement_num < state.num_lines-1) {
-            Vector2 last_size = text_size;
-            state.reveal_statement_num += 1;
-            get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
-            adjust_string_for_width(state.string_to_print, usable_width, state.font, FONTSIZE);
-            text_size = MeasureTextEx(state.font, state.string_to_print, FONTSIZE, 0);
-            scroll_location = last_size.y / text_size.y;
-            scroll_speed = 10 / text_size.y;
-          }
+      // Next button
+      if ((IsKeyPressed(KEY_RIGHT)) || IsKeyPressed(KEY_DOWN) || (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mouse_pos, next_btn_rect))) {
+        if (state.reveal_statement_num < state.num_lines-1) {
+          Vector2 last_size = text_size;
+          state.reveal_statement_num += 1;
+          get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
+          adjust_string_for_width(state.string_to_print, usable_width, state.font, FONTSIZE);
+          text_size = MeasureTextEx(state.font, state.string_to_print, FONTSIZE, 0);
+          scroll_location = last_size.y / text_size.y;
+          scroll_speed = 10 / text_size.y;
         }
+      }
 
-        if (CheckCollisionPointRec(mouse_pos, back_btn_rect)) {
-          if (state.reveal_statement_num > 0) {
-            state.reveal_statement_num -= 1;
-            get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
-            adjust_string_for_width(state.string_to_print, usable_width, state.font, FONTSIZE);
-            text_size = MeasureTextEx(state.font, state.string_to_print, FONTSIZE, 0);
-            scroll_location = 1.0;
-          }
-        }
-
-        if (CheckCollisionPointRec(mouse_pos, reset_btn_rect)) {
-          state.reveal_statement_num = 0;
+      // Back button
+      if ((IsKeyPressed(KEY_LEFT)) || IsKeyPressed(KEY_UP) || (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mouse_pos, back_btn_rect))) {
+        if (state.reveal_statement_num > 0) {
+          state.reveal_statement_num -= 1;
           get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
           adjust_string_for_width(state.string_to_print, usable_width, state.font, FONTSIZE);
           text_size = MeasureTextEx(state.font, state.string_to_print, FONTSIZE, 0);
           scroll_location = 1.0;
         }
+      }
+
+      // Reset button
+      if ((IsKeyPressed(KEY_R)) || (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && CheckCollisionPointRec(mouse_pos, reset_btn_rect))) {
+        state.reveal_statement_num = 0;
+        get_qanda_string(state.qanda, state.string_to_print, state.reveal_statement_num);
+        adjust_string_for_width(state.string_to_print, usable_width, state.font, FONTSIZE);
+        text_size = MeasureTextEx(state.font, state.string_to_print, FONTSIZE, 0);
+        scroll_location = 1.0;
       }
     }
 
