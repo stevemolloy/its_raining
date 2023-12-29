@@ -292,6 +292,7 @@ int main(void) {
             passwd_details.lettercount--;
             if (passwd_details.lettercount < 0) passwd_details.lettercount = 0;
             passwd_details.passwd[passwd_details.lettercount] = '\0';
+            dummy_password[passwd_details.lettercount] = '\0';
         }
 
         if (IsKeyPressed(KEY_ENTER)) {
@@ -317,6 +318,10 @@ int main(void) {
         if (is_utf8(state.buffer)) {
           state.state = BUILDING_FILE;
         } else {
+          state.prompt_text = "Wrong password. Try again.";
+          passwd_details.lettercount = 0;
+          passwd_details.passwd[0] = '\0';
+          dummy_password[0] = '\0';
           state.state = WAITING_FOR_PASSWD;
         }
       } else if (state.state == BUILDING_FILE) {
