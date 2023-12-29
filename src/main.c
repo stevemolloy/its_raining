@@ -131,6 +131,7 @@ int main(void) {
         int codepointsNoDupsCount = 0;
         int *codepointsNoDups = CodepointRemoveDuplicates(codepoints, codepointCount, &codepointsNoDupsCount);
         state.font = LoadFontEx("./fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, codepointsNoDups, codepointsNoDupsCount);
+        AddNewCharsToFontEx(&state.font, "./fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, "•");
         UnloadCodepoints(codepoints);
         state.num_lines = string_to_lines(&state.buffer, &state.lines);
         parse_lines_to_qanda(&state.qanda, state.lines, state.num_lines);
@@ -326,6 +327,7 @@ int main(void) {
         int codepointsNoDupsCount = 0;
         int *codepointsNoDups = CodepointRemoveDuplicates(codepoints, codepointCount, &codepointsNoDupsCount);
         state.font = LoadFontEx("./fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, codepointsNoDups, codepointsNoDupsCount);
+        AddNewCharsToFontEx(&state.font, "./fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, "•");
         UnloadCodepoints(codepoints);
         state.num_lines = string_to_lines(&state.buffer, &state.lines);
         parse_lines_to_qanda(&state.qanda, state.lines, state.num_lines);
@@ -375,3 +377,4 @@ int main(void) {
 
   return 0;
 }
+

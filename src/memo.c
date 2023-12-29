@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <gcrypt.h>
+#include <string.h>
 
 #include "raylib.h"
 #include "memo.h"
@@ -343,9 +344,10 @@ void get_qanda_string(QandA qanda, char *str, size_t statement_num) {
   if (statement_num == 0) {
     return;
   }
+  strcat(str, "• ");
   for (size_t i=0; i<statement_num; i++) {
     strcat(str, qanda.statements[i]);
-    if (i != statement_num-1) strcat(str, "\n\n");
+    if (i != statement_num-1) strcat(str, "\n\n• ");
   }
   strcat(str, "\0");
 } 
@@ -364,8 +366,9 @@ void adjust_string_for_width(char *orig_str, float usable_width, Font font, floa
 
   for (size_t i=0; i<strlen(orig_str); i++) {
     if (orig_str[i] == '\n') {
-      if (num_chars - i > 1 && orig_str[i+1] == '\n') {
-        i += 1;
+      if (strncmp("\n\n• ", &orig_str[i], 4) == 0) {
+      // if (num_chars - i > 1 && orig_str[i+1] == '\n' && orig_str[i+2] == 0xE2 && orig_str[i+1] == '\n') {
+        i += 4;
         continue;
       }
       orig_str[i] = ' ';
@@ -379,3 +382,50 @@ void adjust_string_for_width(char *orig_str, float usable_width, Font font, floa
   return;
 }
 
+// Reload the font after adding the new characters to the list of desired characters
+void AddNewCharsToFontEx(Font *font, const char *fileName, int fontSize, char *newChars)
+{
+    // Get the codepoints of the newChars
+    int codepointCount = 0;
+    int *codepoints = LoadCodepoints(newChars, &codepointCount);
+
+    // Maximum value of the number of codepoints in the updated Font
+    int newCount = font->glyphCount + codepointCount;
+
+    // Allocate space for the new codepoints and populate it
+    int *newCodepoints = MemAlloc(newCount * sizeof(int));
+
+    int codepointCountWithNoDupes = 0;  // We don't need to assign chars that already exist in the Font
+    for (int i = 0; i < font->glyphCount; i++)
+    {
+        newCodepoints[i] = font->glyphs[i].value;
+        codepointCountWithNoDupes += 1;
+    }
+
+    for (int i = font->glyphCount; i < newCount; i++)
+    {
+        bool codepointIsUnique = true;
+        int cp = codepoints[i-font->glyphCount];
+
+        // This loop checks for the existence of the newChars in the input Font, and skips them if necessary
+        for (int j = 0; j < font->glyphCount; j++)
+        {
+            if (cp == font->glyphs[j].value)
+            {
+              codepointIsUnique = false;
+              break;
+            }
+        }
+        if (codepointIsUnique)
+        {
+            newCodepoints[codepointCountWithNoDupes] = cp;
+            codepointCountWithNoDupes += 1;
+        }
+    }
+
+    // Unload the Font and then reassign the newly built Font
+    UnloadFont(*font);
+    *font = LoadFontEx(fileName, fontSize, newCodepoints, codepointCountWithNoDupes);
+
+    MemFree(newCodepoints);
+}

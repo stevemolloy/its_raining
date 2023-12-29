@@ -89,5 +89,7 @@ void advance_to_char(char **string, char c);
 
 void parse_lines_to_qanda(QandA *qanda, char **lines, size_t num_lines);
 
+void AddNewCharsToFontEx(Font *font, const char *fileName, int fontSize, char *newChars);
+
 #endif // !_MEMO_H
 
