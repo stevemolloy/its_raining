@@ -1,4 +1,5 @@
 # Introduction
+
 This introduces an app whose purpose is to help people learn a catechism and/or a ceremonial text.
 
 The basic idea is that the user would use the app to step through the text, learning each line as it comes and perhaps trying to speak the next line out loud before advancing.
