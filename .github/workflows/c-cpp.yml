@@ -1,0 +1,17 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: make
+      run: sudo apt update && sudo apt upgrade && sudo apt install build-essential libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libgcrypt-dev && make
