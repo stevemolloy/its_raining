@@ -3,3 +3,5 @@ bin
 obj
 compile_commands.json
 Description.pdf
+*.o
+includes/raylib/src
