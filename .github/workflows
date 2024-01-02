@@ -1,0 +1,18 @@
+name: its_raining
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+ build:
+   runs-on: ubuntu-latest
+   steps:
+   - name: checkout repo
+     uses: actions/checkout@main
+   - name: prep env
+     run: apt update && apt upgrade && apt install build-essential libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libgcrypt-dev
+   - name: build application
+     run: make build
