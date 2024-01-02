@@ -17,6 +17,23 @@ The user then steps through the text using the "Next" and "Back" buttons, and ma
 
 ![Working with a text](./Images/scrollable_screen.png "Stepping through the text")
 
+# Installation
+
+## Linux Mint
+
+The following will build the executable after making sure to install the appropriate libraries.
+
+```console
+sudo apt install build-essential libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libgcrypt-dev
+make
+```
+
+The binary will be placed in the `bin` folder.
+
+```console
+./bin/itsraining
+```
+
 # Protection of secrets
 
 As stated above, the catechism files included in this repository were imagined by ChatGPT for a purely fictional relgion.  It will *never* be the case that genuine, non-imagined files will be stored here, nor will such information ever be included in the source code.  This repository is only for the storage and distribution of the source code and associated executables, and these executables are useless if the user is unable to provide suitable texts.
