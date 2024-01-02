@@ -1,7 +1,7 @@
-CC = clang
+CC = gcc
 CFLAGS = -Wall -Wpedantic -Wextra -ggdb -std=c18
 CINCLUDES = -I./includes/raylib/src
-CLIBS = -L./includes/raylib/src -lm -lraylib -lgcrypt
+CLIBS = -L./includes/raylib/src -lraylib -lgcrypt -lm
 
 SRC = src
 OBJ = obj
@@ -19,11 +19,13 @@ $(BIN): $(OBJS)
 	$(CC) $(CFLAGS) $(CINCLUDES) $^ -o $@ $(CLIBS)
 
 $(OBJ)/%.o: $(SRC)/%.c
+	@$(MAKE) -C ./includes/raylib/src/
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(CINCLUDES) -c $< -o $@
 
 clean:
 	rm -rf $(BINDIR) $(OBJ)
+	@$(MAKE) -C ./includes/raylib/src/ clean
 
 run: $(BIN)
 	./$(BIN)
