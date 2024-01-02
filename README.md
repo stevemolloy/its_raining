@@ -25,7 +25,8 @@ The user then steps through the text using the "Next" and "Back" buttons, and ma
 The following will build the executable after making sure to install the appropriate libraries.
 
 ```console
-sudo apt install build-essential libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libgcrypt-dev
+sudo apt install build-essential
+sudo apt install libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libgcrypt-dev
 make
 ```
 
