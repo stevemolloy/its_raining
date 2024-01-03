@@ -1,28 +1,16 @@
-name: Windows Make Workflow
-
-on:
-  push:
-    branches:
-      - main
+name: MSYS2
+on: [push, pull_request]
 
 jobs:
-  build:
-    runs-on: windows-latest
-
+  amd64_windows_gcc:
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Install MSYS2
-      uses: mattn/actions-msys2@v2
+    - uses: actions/checkout@v2
+    - uses: msys2/setup-msys2@v2
       with:
-        msys2-root: 'C:\msys64'
-        msys2-update: 'full'
-        msys2-install: 'make gcc'
-
-    - name: Build and install gcrypt
-      run:  pacman -S mingw-w64-x86_64-libgcrypt
-
-    - name: Run make
-      run: make
-
+        install: gcc make
+    - run: gcc -v
+    - run: make
