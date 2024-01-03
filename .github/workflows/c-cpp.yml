@@ -19,7 +19,6 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: itsraining
-        path: ./bin/itsraining
         path: |
           ./bin/itsraining
           ./fonts
