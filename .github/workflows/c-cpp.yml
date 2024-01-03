@@ -20,3 +20,6 @@ jobs:
       with:
         name: itsraining
         path: ./bin/itsraining
+        path: |
+          ./bin/itsraining
+          ./fonts
