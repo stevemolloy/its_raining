@@ -32,3 +32,5 @@ jobs:
           path: |
             ./bin
             ./fonts
+            D:/a/_temp/msys64/ucrt64/lib/libgcrypt.dll.a
+            D:/a/_temp/msys64/ucrt64/lib/libgcrypt.a
