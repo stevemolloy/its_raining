@@ -18,13 +18,11 @@ jobs:
         run: |
           echo 'Running in MSYS2!'
           make
-      - name: List contents of working directory
+      - name: Copy libraries
         run: |
-          ls -la
-          ls -la ./fonts/
-          ls -la ./bin/
-          ls -la D:/a/_temp/msys64/ucrt64/
-          ls -la D:/a/_temp/msys64/ucrt64/lib
+          mkdir libs
+          cp D:/a/_temp/msys64/ucrt64/lib/libgcrypt.dll.a libs/
+          cp D:/a/_temp/msys64/ucrt64/lib/libgcrypt.a libs/
       - name: Archive executable
         uses: actions/upload-artifact@v2
         with:
@@ -32,5 +30,4 @@ jobs:
           path: |
             ./bin
             ./fonts
-            D:/a/_temp/msys64/ucrt64/lib/libgcrypt.dll.a
-            D:/a/_temp/msys64/ucrt64/lib/libgcrypt.a
+            ./libs
