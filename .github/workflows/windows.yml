@@ -20,7 +20,7 @@ jobs:
           make
       - name: List contents of working directory
         run: |
-          dir /s /b
+          ls -la
       - name: Archive executable
         uses: actions/upload-artifact@v2
         with:
