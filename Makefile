@@ -1,7 +1,17 @@
 CC = gcc
 CFLAGS = -Wall -Wpedantic -Wextra -ggdb -std=c18
 CINCLUDES = -I./includes/raylib/src
-CLIBS = -L./includes/raylib/src -lraylib -lgdi32 -lwinmm -lopengl32 -lgcrypt -lm
+CLIBS = -L./includes/raylib/src -lraylib -lgcrypt -lm
+
+ifeq ($(OS),Windows_NT)     # is Windows_NT on XP, 2000, 7, Vista, 10...
+    detected_OS := Windows
+else
+    detected_OS := $(shell uname)  # same as "uname -s"
+endif
+
+ifeq ($(detected_OS),Windows)
+		CLIBS += -lgdi32 -lwinmm -lopengl32
+endif
 
 SRC = src
 OBJ = obj
