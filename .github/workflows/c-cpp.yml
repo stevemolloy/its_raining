@@ -20,5 +20,5 @@ jobs:
       with:
         name: itsraining
         path: |
-          ./bin/itsraining
+          ./bin
           ./fonts
