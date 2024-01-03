@@ -1,18 +1,28 @@
-name: Makefile CI
+name: Windows Make Workflow
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-    - name: Install dependencies
+    - name: Install MSYS2
+      uses: mattn/actions-msys2@v2
+      with:
+        msys2-root: 'C:\msys64'
+        msys2-update: 'full'
+        msys2-install: 'make gcc'
+
+    - name: Build and install gcrypt
+      run:  pacman -S mingw-w64-x86_64-libgcrypt
+
+    - name: Run make
       run: make
+
