@@ -18,6 +18,9 @@ jobs:
         run: |
           echo 'Running in MSYS2!'
           make
+      - name: List contents of working directory
+        run: |
+          dir /s /b
       - name: Archive executable
         uses: actions/upload-artifact@v2
         with:
