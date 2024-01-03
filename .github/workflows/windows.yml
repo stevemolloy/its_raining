@@ -17,4 +17,5 @@ jobs:
       - name: CI-Build
         run: |
           echo 'Running in MSYS2!'
+          $env:PATH = "C:\msys64\usr\bin;$env:PATH"
           mingw32-make.exe
