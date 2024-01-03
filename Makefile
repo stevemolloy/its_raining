@@ -19,7 +19,7 @@ $(BIN): $(OBJS)
 	$(CC) $(CFLAGS) $(CINCLUDES) $^ -o $@ $(CLIBS)
 
 $(OBJ)/%.o: $(SRC)/%.c
-	export PLATFORM_OS = WINDOWS
+	export PLATFORM_OS=WINDOWS
 	@$(MAKE) -C ./includes/raylib/src/
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(CINCLUDES) -c $< -o $@
