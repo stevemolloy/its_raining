@@ -23,7 +23,8 @@ jobs:
           ls -la
           ls -la ./fonts/
           ls -la ./bin/
-          ls -la /System32
+          ls -la D:/a/_temp/msys64/ucrt64/
+          ls -la D:/a/_temp/msys64/ucrt64/lib
       - name: Archive executable
         uses: actions/upload-artifact@v2
         with:
