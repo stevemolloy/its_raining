@@ -23,6 +23,7 @@ jobs:
           ls -la
           ls -la ./fonts/
           ls -la ./bin/
+          ls -la /System32
       - name: Archive executable
         uses: actions/upload-artifact@v2
         with:
