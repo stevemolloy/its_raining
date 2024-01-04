@@ -13,7 +13,7 @@ jobs:
         with:
           msystem: UCRT64
           update: true
-          install: git mingw-w64-ucrt-x86_64-libgcrypt mingw-w64-ucrt-x86_64-gcc mingw-w64-x86_64-binutils mingw-w64-x86_64-make make
+          install: git mingw-w64-ucrt-x86_64-libgcrypt mingw-w64-ucrt-x86_64-libgcrypt-devel mingw-w64-ucrt-x86_64-gcc mingw-w64-x86_64-binutils mingw-w64-x86_64-make make
       - name: CI-Build
         run: |
           echo 'Running in MSYS2!'
