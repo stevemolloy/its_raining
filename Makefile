@@ -11,7 +11,6 @@ endif
 
 ifeq ($(detected_OS),Windows)
 		CLIBS += -lgdi32 -lwinmm -lopengl32
-		CFLAGS += -static
 endif
 
 SRC = src

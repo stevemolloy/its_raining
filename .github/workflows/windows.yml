@@ -21,9 +21,9 @@ jobs:
       - name: Copy libraries
         run: |
           mkdir libs
+        find D:/ -name libgcrypt.dll
           cp D:/a/_temp/msys64/ucrt64/lib/libgcrypt.dll.a libs/
           cp D:/a/_temp/msys64/ucrt64/lib/libgcrypt.a libs/
-          dlltool -d ./libs/libgcrypt.dll.a -l ./bin/libgcrypt.dll -k
       - name: Archive executable
         uses: actions/upload-artifact@v2
         with:
