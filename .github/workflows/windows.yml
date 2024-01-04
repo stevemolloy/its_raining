@@ -21,7 +21,7 @@ jobs:
       - name: Copy libraries
         run: |
           mkdir libs
-        find D:/ -name libgcrypt.dll
+          find D:/ -name libgcrypt.dll
           cp D:/a/_temp/msys64/ucrt64/lib/libgcrypt.dll.a libs/
           cp D:/a/_temp/msys64/ucrt64/lib/libgcrypt.a libs/
       - name: Archive executable
