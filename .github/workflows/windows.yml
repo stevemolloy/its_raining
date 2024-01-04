@@ -22,6 +22,8 @@ jobs:
         run: |
           mkdir libs
           find D:/ -name libgcrypt.dll
+          find D:/ -name libgcrypt.a
+          find D:/ -name libgcrypt.dll.a
           cp D:/a/_temp/msys64/ucrt64/lib/libgcrypt.dll.a libs/
           cp D:/a/_temp/msys64/ucrt64/lib/libgcrypt.a libs/
       - name: Archive executable
