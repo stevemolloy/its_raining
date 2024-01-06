@@ -20,10 +20,11 @@ jobs:
           make
       - name: Copy libraries
         run: |
-          mkdir libs
-          cp /usr/bin/msys-gcrypt-20.dll libs/
-          cp D:/a/_temp/msys64/ucrt64/lib/libgcrypt.dll.a libs/
-          cp D:/a/_temp/msys64/ucrt64/lib/libgcrypt.a libs/
+          cp /usr/bin/msys-gcrypt-20.dll bin/libgcrypt-20.dll
+          cp /usr/bin/msys-2.0.dll bin/
+          cp /usr/bin/msys-gpg-error-0.dll bin/
+          cp /usr/bin/msys-iconv-2.dll bin/
+          cp /usr/bin/msys-intl-8.dll bin/
       - name: Archive executable
         uses: actions/upload-artifact@v2
         with:
@@ -31,4 +32,3 @@ jobs:
           path: |
             ./bin
             ./fonts
-            ./libs
