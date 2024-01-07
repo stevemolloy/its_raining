@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Linux CI
 
 on:
   push:
@@ -13,12 +13,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: make
-      run: sudo apt update && sudo apt upgrade && sudo apt install build-essential libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libgcrypt-dev && make
+    - name: Prepare environment
+      run: |
+        sudo apt update
+        sudo apt upgrade
+        sudo apt install build-essential
+        sudo apt install libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libgcrypt-dev
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake -S .. -B .
+        make
     - name: Archive executable
       uses: actions/upload-artifact@v2
       with:
         name: itsraining
         path: |
-          ./bin
+          itsraining
           ./fonts
