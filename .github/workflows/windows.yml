@@ -10,6 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: msys2/setup-msys2@v2
+      - uses: openrndr/setup-opengl@v.1
         with:
           msystem: UCRT64
           update: true
