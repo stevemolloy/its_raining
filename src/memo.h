@@ -2,8 +2,6 @@
 #define _MEMO_H
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
 #include <raylib.h>
 
