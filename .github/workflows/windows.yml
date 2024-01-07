@@ -17,6 +17,9 @@ jobs:
       - name: CI-Build
         run: |
           echo 'Running in MSYS2!'
+          mkdir build
+          cd build
+          cmake -S .. -B .
           make
       - name: Copy libraries
         run: |
@@ -30,5 +33,4 @@ jobs:
         with:
           name: itsraining
           path: |
-            ./bin
-            ./fonts
+            build
