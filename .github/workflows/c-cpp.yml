@@ -30,5 +30,6 @@ jobs:
       with:
         name: itsraining
         path: |
-          itsraining
+          build
+          build/itsraining
           ./fonts
