@@ -6,3 +6,4 @@ Description.pdf
 *.o
 includes/raylib/src
 packaging
+build
