@@ -26,3 +26,5 @@ target_link_libraries(${PROJECT_NAME}
   gcrypt
 )
 
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+

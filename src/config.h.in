@@ -1,2 +1,2 @@
-#define FONT_FILE_PATH "@CMAKE_BINARY_DIR@/fonts/Alegreya-VariableFont_wght.ttf"
+#define FONT_FILE_PATH "./fonts/Alegreya-VariableFont_wght.ttf"
 #define SALT "fafm_donatus"
