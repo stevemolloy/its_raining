@@ -8,3 +8,18 @@ project(itsraining
 
 add_executable(itsraining "src/main.c" "src/memo.c" "src/memo.h")
 
+add_subdirectory("includes/raylib")
+
+target_include_directories( ${PROJECT_NAME}
+  PUBLIC includes/raylib/src
+)
+
+target_link_directories(${PROJECT_NAME}
+  PRIVATE includes/raylib/src
+)
+
+target_link_libraries(${PROJECT_NAME}
+  raylib
+  gcrypt
+)
+
