@@ -9,6 +9,7 @@
 #include <sys/types.h>
 
 #include "memo.h"
+#include "config.h"
 
 #define BACKGROUND_COLOUR CLITERAL(Color){ 0x20, 0x20, 0x20, 0xFF }
 
@@ -61,8 +62,8 @@ int main(void) {
 
   SetTargetFPS(60);
 
-  state.font = LoadFontEx("fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, NULL, 0);
-  Font ui_font = LoadFontEx("fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, NULL, 0);
+  state.font = LoadFontEx(FONT_FILE_PATH, FONTSIZE, NULL, 0);
+  Font ui_font = LoadFontEx(FONT_FILE_PATH, FONTSIZE, NULL, 0);
 
   Vector2 next_btn_text_size  = MeasureTextEx(ui_font, NEXT_BTN_TEXT, FONTSIZE, 0);
   Vector2 back_btn_text_size  = MeasureTextEx(ui_font, BACK_BTN_TEXT, FONTSIZE, 0);
@@ -130,7 +131,7 @@ int main(void) {
         // Removed duplicate codepoints to generate smaller font atlas
         int codepointsNoDupsCount = 0;
         int *codepointsNoDups = CodepointRemoveDuplicates(codepoints, codepointCount, &codepointsNoDupsCount);
-        state.font = LoadFontEx("./fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, codepointsNoDups, codepointsNoDupsCount);
+        state.font = LoadFontEx(FONT_FILE_PATH, FONTSIZE, codepointsNoDups, codepointsNoDupsCount);
         AddNewCharsToFontEx(&state.font, "./fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, "•");
         UnloadCodepoints(codepoints);
         state.num_lines = string_to_lines(&state.buffer, &state.lines);
@@ -332,8 +333,8 @@ int main(void) {
         // Removed duplicate codepoints to generate smaller font atlas
         int codepointsNoDupsCount = 0;
         int *codepointsNoDups = CodepointRemoveDuplicates(codepoints, codepointCount, &codepointsNoDupsCount);
-        state.font = LoadFontEx("./fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, codepointsNoDups, codepointsNoDupsCount);
-        AddNewCharsToFontEx(&state.font, "./fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, "•");
+        state.font = LoadFontEx(FONT_FILE_PATH, FONTSIZE, codepointsNoDups, codepointsNoDupsCount);
+        AddNewCharsToFontEx(&state.font, FONT_FILE_PATH, FONTSIZE, "•");
         UnloadCodepoints(codepoints);
         state.num_lines = string_to_lines(&state.buffer, &state.lines);
         parse_lines_to_qanda(&state.qanda, state.lines, state.num_lines);

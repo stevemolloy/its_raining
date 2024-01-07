@@ -6,11 +6,14 @@ project(itsraining
   LANGUAGES C
 )
 
-add_executable(itsraining "src/main.c" "src/memo.c" "src/memo.h")
+configure_file("src/config.h.in" "config.h")
+
+add_executable(${PROJECT_NAME} "src/main.c" "src/memo.c")
 
 add_subdirectory("includes/raylib")
 
 target_include_directories( ${PROJECT_NAME}
+  PUBLIC ${PROJECT_BINARY_DIR}
   PUBLIC includes/raylib/src
 )
 

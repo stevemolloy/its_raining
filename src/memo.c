@@ -5,6 +5,7 @@
 
 #include "raylib.h"
 #include "memo.h"
+#include "config.h"
 
 #define INITIAL_QA_COUNT 64
 
@@ -143,7 +144,7 @@ char *decrypt_file(const char *input_filename, const char *password) {
 
     // Derive the key from the password using a key derivation function (KDF)
     unsigned char key[KEY_LENGTH];
-    err = gcry_kdf_derive(password, strlen(password), GCRY_KDF_PBKDF2, GCRY_MD_SHA256, "fafm_donatus", 4, 4096, KEY_LENGTH, key);
+    err = gcry_kdf_derive(password, strlen(password), GCRY_KDF_PBKDF2, GCRY_MD_SHA256, SALT, 4, 4096, KEY_LENGTH, key);
     if (err) {
         handle_error("Key derivation failed");
     }
