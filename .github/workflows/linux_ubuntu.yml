@@ -1,5 +1,4 @@
-name: Linux CI
-
+name: Linux_ubuntu
 on:
   push:
     branches: [ "main" ]
@@ -8,9 +7,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Prepare environment
@@ -26,7 +23,7 @@ jobs:
         cmake -S .. -B .
         make
     - name: Archive executable
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: itsraining
         path: |

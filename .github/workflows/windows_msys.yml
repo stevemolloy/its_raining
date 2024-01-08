@@ -1,4 +1,4 @@
-name: MSYS2
+name: Windows_MSYS2
 on: [push, pull_request]
 
 jobs:
@@ -13,16 +13,23 @@ jobs:
         with:
           msystem: UCRT64
           update: true
-          install: git mingw-w64-ucrt-x86_64-gcc 
+          install: git mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-libgcrypt make
       - name: CI-Build
         run: |
-          pacman --noconfirm -S mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-libgcrypt make
           mkdir build
           cd build
           cmake -G "MSYS Makefiles" -S .. -B .
           make
+      - name: Copy libraries
+        run: |
+          mkdir build/libs
+          cp /usr/bin/msys-gcrypt-20.dll build/libs/libgcrypt-20.dll
+          cp /usr/bin/msys-2.0.dll build/libs/
+          cp /usr/bin/msys-gpg-error-0.dll build/libs/
+          cp /usr/bin/msys-iconv-2.dll build/libs/
+          cp /usr/bin/msys-intl-8.dll build/libs/
       - name: Archive executable
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: itsraining
           path: |
