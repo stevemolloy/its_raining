@@ -15,18 +15,6 @@ jobs:
       - uses: actions/checkout@v3
       - name: "Configuration"
         run: |
-          apt install mingw32 mingw32-runtime mingw32-binutils
-          git clone https://github.com/Chronic-Dev/libgcrypt.git
-          git clone https://github.com/Chronic-Dev/libgpg-error.git
-          cd libgpg-error
-          ./autogen.sh --build-w32
-          make
-          make install
-          cd ../libgcrypt
-          ./autogen.sh --build-w32
-          make
-          make install
-          cd ..
           mkdir build
           cd build
           cmake -G "MinGW Makefiles" -S .. -B .
