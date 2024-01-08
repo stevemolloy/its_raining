@@ -18,6 +18,8 @@ jobs:
           mkdir build
           cd build
           cmake -S .. -B .
+          pwd
+          ls -la
           make
       - name: Archive executable
         uses: actions/upload-artifact@v2
