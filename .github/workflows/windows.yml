@@ -19,7 +19,7 @@ jobs:
           echo 'Running in MSYS2!'
           mkdir build
           cd build
-          cmake -S .. -B .
+          /mingw32/bin/cmake.exe -S .. -B .
           make
       - name: Copy libraries
         run: |
