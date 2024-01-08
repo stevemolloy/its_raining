@@ -17,7 +17,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -G make -S .. -B .
+          cmake -G "MinGW Makefiles" -S .. -B .
           pwd
           ls -la
           make
