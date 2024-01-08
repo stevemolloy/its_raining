@@ -13,9 +13,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: "Setup"
+      - name: "Configuration"
         run: |
           mkdir build
           cd build
           cmake -S .. -B .
+      - name: "Build"
+        run: |
+          cd build
+          make
+      - name: Archive executable
+        uses: actions/upload-artifact@v2
+        with:
+          name: itsraining
+          path: |
+            build
 
