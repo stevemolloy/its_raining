@@ -1,4 +1,4 @@
-name: MSYS2
+name: Mingw
 on: [push, pull_request]
 
 jobs:
