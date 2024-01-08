@@ -18,6 +18,7 @@ jobs:
           git clone https://github.com/Chronic-Dev/libgcrypt.git
           git clone https://github.com/Chronic-Dev/libgpg-error.git
           cd libgpg-error
+          ls -ltra
           ./configure
           make
           make install
