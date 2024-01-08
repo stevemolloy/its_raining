@@ -1,8 +1,8 @@
-name: Mingw
+name: MSYS2
 on: [push, pull_request]
 
 jobs:
-  mingw64-gcc:
+    mingw64-gcc:
     name: MinGW GCC
 
     runs-on: windows-latest
@@ -12,9 +12,9 @@ jobs:
         shell: bash
 
     steps:
+      - uses: actions/checkout@v3
       - name: "Setup"
         run: |
-          mkdir build
-          cd build
-          cmake -S .. -B .
+          gcc --version
+          cmake --version
 
