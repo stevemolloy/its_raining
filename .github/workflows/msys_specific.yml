@@ -21,3 +21,10 @@ jobs:
           cd build
           cmake -G "MSYS Makefiles" -S .. -B .
           make
+      - name: Archive executable
+        uses: actions/upload-artifact@v2
+        with:
+          name: itsraining
+          path: |
+            build
+
