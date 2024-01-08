@@ -19,5 +19,5 @@ jobs:
           pacman --noconfirm -S mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-libgcrypt mingw-w64-ucrt-x86_64-make
           mkdir build
           cd build
-          /mingw32/bin/cmake -G "MinGW Makefiles" -S .. -B .
+          cmake -G "MinGW Makefiles" -S .. -B .
           make
