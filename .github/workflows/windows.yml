@@ -1,8 +1,8 @@
-name: MSYS2
+name: Mingw
 on: [push, pull_request]
 
 jobs:
-    mingw64-gcc:
+  mingw64-gcc:
     name: MinGW GCC
 
     runs-on: windows-latest
