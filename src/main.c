@@ -9,7 +9,6 @@
 #include <sys/types.h>
 
 #include "memo.h"
-#include "config.h"
 
 #define BACKGROUND_COLOUR CLITERAL(Color){ 0x20, 0x20, 0x20, 0xFF }
 

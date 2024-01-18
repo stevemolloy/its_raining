@@ -6,8 +6,6 @@ project(itsraining
   LANGUAGES C
 )
 
-configure_file("src/config.h.in" "config.h")
-
 add_executable(${PROJECT_NAME} "src/main.c" "src/memo.c")
 
 find_package(Git QUIET)
@@ -45,6 +43,11 @@ target_link_libraries(${PROJECT_NAME}
   raylib
   gcrypt
 )
+
+add_custom_target(copy_assets
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/fonts ${CMAKE_CURRENT_BINARY_DIR}/fonts
+)
+add_dependencies(itsraining copy_assets)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 

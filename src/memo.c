@@ -5,7 +5,8 @@
 
 #include "raylib.h"
 #include "memo.h"
-#include "config.h"
+
+#define SALT "fafm_donatus"
 
 #define INITIAL_QA_COUNT 64
 
